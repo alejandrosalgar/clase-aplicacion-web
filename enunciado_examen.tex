@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{APLICACIÓN Y SERVICIOS WEB}
+\lhead{Enunciado del examen}
+\cfoot{\thepage}
+
+\definecolor{azul}{RGB}{0,51,102}
+
+\begin{document}
+
+\begin{center}
+{\LARGE \textbf{ENUNCIADO DEL EXAMEN}} \\[0.4cm]
+{\large Aplicación y Servicios Web} \\[0.2cm]
+{\normalsize API REST con FastAPI, base de datos en la nube y menú CRUD} \\[0.8cm]
+{\bfseries Fecha máxima de entrega: domingo 8 de marzo}
+\end{center}
+
+\vspace{1cm}
+
+\section{Objetivo}
+
+Desarrollar una aplicación que exponga una \textbf{API REST} con \textbf{FastAPI}, utilice \textbf{Uvicorn} como servidor, se conecte a una base de datos PostgreSQL en \textbf{Neon} con un número de entidades entre 6 y 10, y ofrezca un \textbf{menú por consola} para realizar operaciones CRUD sobre los recursos.
+
+\section{Requisitos técnicos}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{API REST}
+  \begin{itemize}
+    \item Implementar una API con \textbf{FastAPI}.
+    \item Servir la aplicación con \textbf{Uvicorn} (incluido en la ejecución del proyecto o por comando).
+  \end{itemize}
+
+  \item \textbf{Endpoints}
+  \begin{itemize}
+    \item Definir \textbf{endpoints} para cada recurso (entidad) que permitan:
+    \begin{itemize}
+      \item Listar todos los registros (GET).
+      \item Obtener un registro por identificador (GET por id).
+      \item Crear un registro (POST).
+      \item Actualizar un registro (PUT).
+      \item Eliminar un registro (DELETE).
+    \end{itemize}
+    \item Los endpoints deben estar organizados (por ejemplo, en módulos o routers por entidad).
+  \end{itemize}
+
+  \item \textbf{Base de datos Neon}
+  \begin{itemize}
+    \item Usar PostgreSQL en \textbf{Neon} (\url{https://neon.tech}) como base de datos en la nube.
+    \item Definir entre \textbf{6 y 10 entidades} (tablas) con relaciones coherentes (claves foráneas si aplica).
+    \item Utilizar un ORM (por ejemplo SQLAlchemy) para modelos y conexión.
+    \item Gestionar la URL de conexión mediante variables de entorno (por ejemplo \texttt{.env}) y no incluir credenciales en el código.
+  \end{itemize}
+
+  \item \textbf{Menú y CRUD}
+  \begin{itemize}
+    \item Implementar un \textbf{menú por consola} que permita al usuario:
+    \begin{itemize}
+      \item Elegir la entidad o recurso con el que trabajar.
+      \item Listar, crear, ver uno, actualizar y eliminar registros (operaciones CRUD).
+    \end{itemize}
+    \item El menú debe consumir la API (llamadas HTTP a los endpoints), no acceder directamente a la base de datos.
+  \end{itemize}
+
+  \item \textbf{Estilo de código y documentación}
+  \begin{itemize}
+    \item Respetar las normas \textbf{PEP 8} (estilo de código en Python: indentación, longitud de líneas, nombres, espaciado, etc.).
+    \item Incluir \textbf{docstrings} en módulos, clases y funciones relevantes (descripción breve del propósito, parámetros y retorno cuando aplique).
+  \end{itemize}
+\end{enumerate}
+
+\section{Estructura sugerida del proyecto}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{entities} o \texttt{models}: definición de las tablas/entidades.
+  \item \texttt{database}: configuración de conexión a Neon y sesión.
+  \item \texttt{schemas}: modelos Pydantic para validación de request/response (opcional pero recomendado).
+  \item \texttt{endpoints} o \texttt{routers}: rutas FastAPI por recurso.
+  \item \texttt{crud} (cliente): lógica que llama a los endpoints desde el menú (cliente HTTP).
+  \item \texttt{main} o script principal: menú por consola que utiliza el CRUD cliente.
+  \item Archivo de aplicación FastAPI (por ejemplo \texttt{app.py}) que registre los routers y arranque con Uvicorn.
+\end{itemize}
+
+\section{Trabajo con Git y GitHub}
+
+El desarrollo debe realizarse en un repositorio en \textbf{GitHub}. Se evaluará el uso de un flujo de trabajo con ramas y Pull Requests (PR).
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Ramas principales}
+  \begin{itemize}
+    \item \texttt{dev}: desarrollo.
+    \item \texttt{qa}: pruebas / calidad.
+    \item \texttt{prod}: producción.
+  \end{itemize}
+
+  \item \textbf{Flujo de PR por rama}
+  \begin{itemize}
+    \item Crear ramas de trabajo (features) y integrar mediante \textbf{Pull Requests}:
+    \begin{itemize}
+      \item \texttt{feat-dev}: rama de desarrollo; se integra en \texttt{dev} vía PR.
+      \item \texttt{feat-qa}: integración hacia \texttt{qa} vía PR (desde \texttt{dev} o rama de release).
+      \item \texttt{feat-prod}: integración hacia \texttt{prod} vía PR (desde \texttt{qa} o rama de release).
+    \end{itemize}
+    \item Cada avance hacia \texttt{dev}, \texttt{qa} y \texttt{prod} debe hacerse mediante PR en GitHub (no merges directos en local sin PR).
+  \end{itemize}
+
+  \item \textbf{Evaluación individual por commits}
+  \begin{itemize}
+    \item La nota en esta parte será \textbf{individual} según el historial de \textbf{commits} en el repositorio.
+    \item Se tendrá en cuenta la autoría de los commits, la claridad de los mensajes y la trazabilidad del trabajo (qué aportó cada integrante en las ramas y PR).
+  \end{itemize}
+\end{enumerate}
+
+\section{Criterios de evaluación}
+
+\begin{itemize}[leftmargin=*]
+  \item Funcionamiento de la API con FastAPI y Uvicorn.
+  \item Correcta definición y uso de endpoints (verbos HTTP y recursos).
+  \item Conexión a Neon y definición de entre 6 y 10 entidades con sentido lógico.
+  \item Menú operativo que realice CRUD mediante llamadas a la API.
+  \item Organización del código y buenas prácticas (variables de entorno, sin credenciales en código).
+  \item Cumplimiento de \textbf{PEP 8} y uso de \textbf{docstrings} en el código.
+  \item \textbf{Git/GitHub}: uso de ramas \texttt{dev}, \texttt{qa}, \texttt{prod} y flujo de PR (\texttt{feat-dev}, \texttt{feat-qa}, \texttt{feat-prod}); nota individual según commits.
+\end{itemize}
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.3cm}
+{\small Documento generado para el curso de Aplicación y Servicios Web.}
+
+\end{document}
