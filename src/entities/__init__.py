@@ -1,4 +1,15 @@
 from src.entities.usuarios import Usuario
-from src.entities.producto import Producto
+from src.entities.sucursal import Sucursal
+from src.entities.tipo_cuenta import TipoCuenta
+from src.entities.cuenta import Cuenta
+from src.entities.tipo_transaccion import TipoTransaccion
+from src.entities.transaccion import Transaccion
 
-__all__ = ["Usuario", "Producto"]
+__all__ = [
+    "Usuario",
+    "Sucursal",
+    "TipoCuenta",
+    "Cuenta",
+    "TipoTransaccion",
+    "Transaccion",
+]
