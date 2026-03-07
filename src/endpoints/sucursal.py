@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.core.exceptions import NotFoundError
+from src.core.responses import success_response
 from src.database.config import get_db
 from src.entities.sucursal import Sucursal
 from src.schemas.sucursal_schema import SucursalCreate, SucursalUpdate, SucursalResponse
@@ -10,20 +12,23 @@ from src.schemas.sucursal_schema import SucursalCreate, SucursalUpdate, Sucursal
 router = APIRouter(prefix="/sucursales", tags=["sucursales"])
 
 
-@router.get("", response_model=list[SucursalResponse])
+@router.get("")
 def listar_sucursales(db: Session = Depends(get_db)):
-    return db.query(Sucursal).all()
+    sucursales = db.query(Sucursal).all()
+    data = [SucursalResponse.model_validate(s).model_dump(mode="json") for s in sucursales]
+    return success_response(data=data, message="Listado de sucursales")
 
 
-@router.get("/{sucursal_id}", response_model=SucursalResponse)
+@router.get("/{sucursal_id}")
 def obtener_sucursal(sucursal_id: UUID, db: Session = Depends(get_db)):
     sucursal = db.query(Sucursal).filter(Sucursal.id == sucursal_id).first()
     if not sucursal:
-        raise HTTPException(status_code=404, detail="Sucursal no encontrada")
-    return sucursal
+        raise NotFoundError("Sucursal no encontrada")
+    data = SucursalResponse.model_validate(sucursal).model_dump(mode="json")
+    return success_response(data=data, message="Sucursal obtenida")
 
 
-@router.post("", response_model=SucursalResponse, status_code=201)
+@router.post("", status_code=201)
 def crear_sucursal(dato: SucursalCreate, db: Session = Depends(get_db)):
     sucursal = Sucursal(
         nombre=dato.nombre,
@@ -34,29 +39,31 @@ def crear_sucursal(dato: SucursalCreate, db: Session = Depends(get_db)):
     db.add(sucursal)
     db.commit()
     db.refresh(sucursal)
-    return sucursal
+    data = SucursalResponse.model_validate(sucursal).model_dump(mode="json")
+    return success_response(data=data, message="Sucursal creada")
 
 
-@router.put("/{sucursal_id}", response_model=SucursalResponse)
+@router.put("/{sucursal_id}")
 def actualizar_sucursal(
     sucursal_id: UUID, dato: SucursalUpdate, db: Session = Depends(get_db)
 ):
     sucursal = db.query(Sucursal).filter(Sucursal.id == sucursal_id).first()
     if not sucursal:
-        raise HTTPException(status_code=404, detail="Sucursal no encontrada")
+        raise NotFoundError("Sucursal no encontrada")
     update = dato.model_dump(exclude_unset=True)
     for k, v in update.items():
         setattr(sucursal, k, v)
     db.commit()
     db.refresh(sucursal)
-    return sucursal
+    data = SucursalResponse.model_validate(sucursal).model_dump(mode="json")
+    return success_response(data=data, message="Sucursal actualizada")
 
 
 @router.delete("/{sucursal_id}", status_code=204)
 def eliminar_sucursal(sucursal_id: UUID, db: Session = Depends(get_db)):
     sucursal = db.query(Sucursal).filter(Sucursal.id == sucursal_id).first()
     if not sucursal:
-        raise HTTPException(status_code=404, detail="Sucursal no encontrada")
+        raise NotFoundError("Sucursal no encontrada")
     db.delete(sucursal)
     db.commit()
     return None

@@ -20,13 +20,16 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("Se requiere DATABASE_URL en las variables de entorno")
 
+# SSL: "require" para Neon en producción; "disable" para PostgreSQL local/CI
+_ssl_mode = os.getenv("SSL_MODE", "require")
+
 # Crear el motor de SQLAlchemy
 engine = create_engine(
     DATABASE_URL,
     echo=False,  # Cambiar a True para ver consultas SQL
     pool_pre_ping=True,  # Verificar conexión antes de usar
     pool_recycle=300,  # Reciclar conexiones cada 5 minutos
-    connect_args={"sslmode": "require"},  # Requerir SSL para Neon
+    connect_args={"sslmode": _ssl_mode},
 )
 
 # Crear la sesión

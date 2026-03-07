@@ -1,0 +1,77 @@
+# Pipeline CI: validación, lint y pruebas
+# Se ejecuta en cada push y en pull requests a main/master
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: banco_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/banco_test
+      SSL_MODE: disable
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache de dependencias
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff
+
+      - name: Lint con Ruff
+        run: ruff check src --output-format=default
+
+      - name: Formato con Ruff
+        run: ruff format src --check
+
+      - name: Crear tablas (BD de prueba)
+        run: python init_db.py
+
+      - name: Pruebas (smoke test)
+        run: |
+          python -c "
+from src.app import app
+from fastapi.testclient import TestClient
+client = TestClient(app)
+r = client.get('/')
+assert r.status_code == 200
+body = r.json()
+assert body.get('success') is True
+assert 'data' in body
+print('Smoke test OK')
+          "

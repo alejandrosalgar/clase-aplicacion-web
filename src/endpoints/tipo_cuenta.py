@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.core.exceptions import ConflictError, NotFoundError
+from src.core.responses import success_response
 from src.database.config import get_db
 from src.entities.tipo_cuenta import TipoCuenta
 from src.schemas.tipo_cuenta_schema import (
@@ -14,54 +16,59 @@ from src.schemas.tipo_cuenta_schema import (
 router = APIRouter(prefix="/tipos-cuenta", tags=["tipos-cuenta"])
 
 
-@router.get("", response_model=list[TipoCuentaResponse])
+@router.get("")
 def listar_tipos_cuenta(db: Session = Depends(get_db)):
-    return db.query(TipoCuenta).all()
+    tipos = db.query(TipoCuenta).all()
+    data = [TipoCuentaResponse.model_validate(t).model_dump(mode="json") for t in tipos]
+    return success_response(data=data, message="Listado de tipos de cuenta")
 
 
-@router.get("/{tipo_id}", response_model=TipoCuentaResponse)
+@router.get("/{tipo_id}")
 def obtener_tipo_cuenta(tipo_id: UUID, db: Session = Depends(get_db)):
     tipo = db.query(TipoCuenta).filter(TipoCuenta.id == tipo_id).first()
     if not tipo:
-        raise HTTPException(status_code=404, detail="Tipo de cuenta no encontrado")
-    return tipo
+        raise NotFoundError("Tipo de cuenta no encontrado")
+    data = TipoCuentaResponse.model_validate(tipo).model_dump(mode="json")
+    return success_response(data=data, message="Tipo de cuenta obtenido")
 
 
-@router.post("", response_model=TipoCuentaResponse, status_code=201)
+@router.post("", status_code=201)
 def crear_tipo_cuenta(dato: TipoCuentaCreate, db: Session = Depends(get_db)):
     if db.query(TipoCuenta).filter(TipoCuenta.codigo == dato.codigo).first():
-        raise HTTPException(status_code=400, detail="Ya existe un tipo de cuenta con ese código")
+        raise ConflictError("Ya existe un tipo de cuenta con ese código", status_code=400)
     tipo = TipoCuenta(codigo=dato.codigo, nombre=dato.nombre)
     db.add(tipo)
     db.commit()
     db.refresh(tipo)
-    return tipo
+    data = TipoCuentaResponse.model_validate(tipo).model_dump(mode="json")
+    return success_response(data=data, message="Tipo de cuenta creado")
 
 
-@router.put("/{tipo_id}", response_model=TipoCuentaResponse)
+@router.put("/{tipo_id}")
 def actualizar_tipo_cuenta(
     tipo_id: UUID, dato: TipoCuentaUpdate, db: Session = Depends(get_db)
 ):
     tipo = db.query(TipoCuenta).filter(TipoCuenta.id == tipo_id).first()
     if not tipo:
-        raise HTTPException(status_code=404, detail="Tipo de cuenta no encontrado")
+        raise NotFoundError("Tipo de cuenta no encontrado")
     update = dato.model_dump(exclude_unset=True)
     if "codigo" in update and db.query(TipoCuenta).filter(
         TipoCuenta.codigo == update["codigo"], TipoCuenta.id != tipo_id
     ).first():
-        raise HTTPException(status_code=400, detail="El código ya existe")
+        raise ConflictError("El código ya existe", status_code=400)
     for k, v in update.items():
         setattr(tipo, k, v)
     db.commit()
     db.refresh(tipo)
-    return tipo
+    data = TipoCuentaResponse.model_validate(tipo).model_dump(mode="json")
+    return success_response(data=data, message="Tipo de cuenta actualizado")
 
 
 @router.delete("/{tipo_id}", status_code=204)
 def eliminar_tipo_cuenta(tipo_id: UUID, db: Session = Depends(get_db)):
     tipo = db.query(TipoCuenta).filter(TipoCuenta.id == tipo_id).first()
     if not tipo:
-        raise HTTPException(status_code=404, detail="Tipo de cuenta no encontrado")
+        raise NotFoundError("Tipo de cuenta no encontrado")
     db.delete(tipo)
     db.commit()
     return None
