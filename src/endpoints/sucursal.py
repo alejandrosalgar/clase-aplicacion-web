@@ -17,7 +17,7 @@ def listar_sucursales(db: Session = Depends(get_db)):
 
 @router.get("/{sucursal_id}", response_model=SucursalResponse)
 def obtener_sucursal(sucursal_id: UUID, db: Session = Depends(get_db)):
-    sucursal = db.query(Sucursal).filter(Sucursal.id == sucursal_id).first()
+    sucursal = db.query(Sucursal).filter(Sucursal.id_sucursal == sucursal_id).first()
     if not sucursal:
         raise HTTPException(status_code=404, detail="Sucursal no encontrada")
     return sucursal
@@ -30,6 +30,7 @@ def crear_sucursal(dato: SucursalCreate, db: Session = Depends(get_db)):
         direccion=dato.direccion,
         ciudad=dato.ciudad,
         telefono=dato.telefono,
+        id_usuario_creacion=dato.id_usuario_creacion,
     )
     db.add(sucursal)
     db.commit()
@@ -41,7 +42,7 @@ def crear_sucursal(dato: SucursalCreate, db: Session = Depends(get_db)):
 def actualizar_sucursal(
     sucursal_id: UUID, dato: SucursalUpdate, db: Session = Depends(get_db)
 ):
-    sucursal = db.query(Sucursal).filter(Sucursal.id == sucursal_id).first()
+    sucursal = db.query(Sucursal).filter(Sucursal.id_sucursal == sucursal_id).first()
     if not sucursal:
         raise HTTPException(status_code=404, detail="Sucursal no encontrada")
     update = dato.model_dump(exclude_unset=True)
@@ -54,7 +55,7 @@ def actualizar_sucursal(
 
 @router.delete("/{sucursal_id}", status_code=204)
 def eliminar_sucursal(sucursal_id: UUID, db: Session = Depends(get_db)):
-    sucursal = db.query(Sucursal).filter(Sucursal.id == sucursal_id).first()
+    sucursal = db.query(Sucursal).filter(Sucursal.id_sucursal == sucursal_id).first()
     if not sucursal:
         raise HTTPException(status_code=404, detail="Sucursal no encontrada")
     db.delete(sucursal)

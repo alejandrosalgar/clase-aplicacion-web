@@ -1,6 +1,7 @@
 """
 CRUD de sucursal: conexión con los endpoints /sucursales.
 """
+
 from src.crud.client import _delete, _get, _post, _put
 
 
@@ -14,6 +15,7 @@ def obtener_sucursal(sucursal_id: str) -> dict:
 
 def crear_sucursal(
     nombre: str,
+    id_usuario_creacion: str,
     direccion: str | None = None,
     ciudad: str | None = None,
     telefono: str | None = None,
@@ -23,6 +25,7 @@ def crear_sucursal(
         "direccion": direccion,
         "ciudad": ciudad,
         "telefono": telefono,
+        "id_usuario_creacion": id_usuario_creacion,
     }
     return _post("/sucursales", json=payload)
 
@@ -33,6 +36,7 @@ def actualizar_sucursal(
     direccion: str | None = None,
     ciudad: str | None = None,
     telefono: str | None = None,
+    id_usuario_edita: str | None = None,
 ) -> dict:
     payload = {}
     if nombre is not None:
@@ -43,6 +47,8 @@ def actualizar_sucursal(
         payload["ciudad"] = ciudad
     if telefono is not None:
         payload["telefono"] = telefono
+    if id_usuario_edita is not None:
+        payload["id_usuario_edita"] = id_usuario_edita
     return _put(f"/sucursales/{sucursal_id}", json=payload)
 
 

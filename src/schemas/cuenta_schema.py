@@ -14,6 +14,7 @@ class CuentaBase(BaseModel):
 
 class CuentaCreate(CuentaBase):
     saldo: Decimal | None = 0
+    id_usuario_creacion: UUID
 
 
 class CuentaUpdate(BaseModel):
@@ -21,11 +22,13 @@ class CuentaUpdate(BaseModel):
     id_sucursal: UUID | None = None
     id_tipo_cuenta: UUID | None = None
     saldo: Decimal | None = None
+    id_usuario_edita: UUID | None = None
 
 
 class CuentaResponse(CuentaBase):
-    id: UUID
+    id_cuenta: UUID
     saldo: Decimal
+    id_usuario_creacion: UUID
     fecha_creacion: datetime | None = None
     fecha_edicion: datetime | None = None
 

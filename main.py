@@ -8,6 +8,7 @@ import threading
 import time
 
 sys.path.insert(0, ".")
+id_usuario_actual = None
 
 from src.crud import (
     actualizar_cuenta,
@@ -40,6 +41,7 @@ from src.crud import (
     obtener_tipo_transaccion,
     obtener_transaccion,
     obtener_usuario,
+    login,
 )
 
 
@@ -51,6 +53,51 @@ def _err_conexion(e):
         )
     else:
         print(f"  Error: {e}")
+
+
+def menu_login():
+    global id_usuario_actual
+    while True:
+        print("\n--- LOGUEO BANCO ---")
+        print(" ¿Tienes cuenta?")
+        print("1. Si   2. No   0. Cancelar")
+        op = input("Opción: ").strip()
+        if op == "0":
+            return False
+        if op == "1":
+            nombre_usuario = input("Nombre usuario: ").strip()
+            contraseña = input("Contraseña: ").strip()
+            if nombre_usuario and contraseña:
+                try:
+                    confirma_login = login(nombre_usuario, contraseña)
+                    if confirma_login.get("resultado") == "Login exitoso":
+                        print(" Logueo exitoso")
+                        id_usuario_actual = confirma_login.get("id_usuario")
+                        return True
+                    else:
+                        print("Error en el login: ", confirma_login)
+                except Exception as e:
+                    _err_conexion(e)
+            else:
+                print("  Faltan datos.")
+        elif op == "2":
+            print(" Por favor crea tu usuario:")
+            nombre = input("Nombre: ").strip()
+            nombre_usuario = input("Nombre usuario: ").strip()
+            email = input("Email: ").strip()
+            contraseña = input("Contraseña: ").strip()
+            rol = input("Rol (admin/cliente): ").strip()
+            telefono = input("Teléfono: ").strip()
+            if nombre and nombre_usuario and email and contraseña and rol and telefono:
+                try:
+                    crear_usuario(
+                        nombre, nombre_usuario, email, telefono, contraseña, rol
+                    )
+                    print("  Usuario creado.")
+                except Exception as e:
+                    _err_conexion(e)
+            else:
+                print("  Faltan datos.")
 
 
 def menu_usuarios() -> None:
@@ -68,7 +115,7 @@ def menu_usuarios() -> None:
                 else:
                     for u in usuarios:
                         print(
-                            f"  {u['id']} | {u['nombre_usuario']} | {u['email']} | activo={u['activo']}"
+                            f"  {u['id_usuario']} | {u['nombre_usuario']} | {u['email']} | rol={u['rol']} | tel={u['telefono']} | activo={u['activo']}"
                         )
             except Exception as e:
                 _err_conexion(e)
@@ -85,9 +132,13 @@ def menu_usuarios() -> None:
             nombre_usuario = input("Nombre usuario: ").strip()
             email = input("Email: ").strip()
             contraseña = input("Contraseña: ").strip()
-            if nombre and nombre_usuario and email and contraseña:
+            rol = input("Rol (admin/cliente): ").strip()
+            telefono = input("Teléfono: ").strip()
+            if nombre and nombre_usuario and email and contraseña and rol and telefono:
                 try:
-                    crear_usuario(nombre, nombre_usuario, email, contraseña)
+                    crear_usuario(
+                        nombre, nombre_usuario, email, telefono, contraseña, rol
+                    )
                     print("  Usuario creado.")
                 except Exception as e:
                     _err_conexion(e)
@@ -133,7 +184,9 @@ def menu_sucursales():
                     print("  No hay sucursales.")
                 else:
                     for s in items:
-                        print(f"  {s['id']} | {s['nombre']} | {s.get('ciudad') or '-'}")
+                        print(
+                            f"  {s['id_sucursal']} | {s['nombre']} | {s.get('ciudad') or '-'}"
+                        )
             except Exception as e:
                 _err_conexion(e)
         elif op == "2":
@@ -144,11 +197,12 @@ def menu_sucursales():
                 except Exception as e:
                     _err_conexion(e)
         elif op == "3":
-            nombre = input("Nombre: ").strip()
+            nombre = input("Nombre sucursal: ").strip()
             if nombre:
                 try:
                     crear_sucursal(
                         nombre,
+                        id_usuario_actual,
                         input("Dirección (opcional): ").strip() or None,
                         input("Ciudad (opcional): ").strip() or None,
                         input("Teléfono (opcional): ").strip() or None,
@@ -164,7 +218,11 @@ def menu_sucursales():
                 continue
             nombre = input("Nombre (vacío=no cambiar): ").strip()
             try:
-                actualizar_sucursal(sid, nombre=nombre if nombre else None)
+                actualizar_sucursal(
+                    sid,
+                    nombre=nombre if nombre else None,
+                    id_usuario_edita=id_usuario_actual,
+                )
                 print("  Sucursal actualizada.")
             except Exception as e:
                 _err_conexion(e)
@@ -192,7 +250,9 @@ def menu_tipos_cuenta():
                     print("  No hay tipos de cuenta.")
                 else:
                     for t in items:
-                        print(f"  {t['id']} | {t['codigo']} | {t['nombre']}")
+                        print(
+                            f"  {t['id_tipo_cuenta']} | {t['codigo']} | {t['nombre']}"
+                        )
             except Exception as e:
                 _err_conexion(e)
         elif op == "2":
@@ -203,27 +263,30 @@ def menu_tipos_cuenta():
                 except Exception as e:
                     _err_conexion(e)
         elif op == "3":
-            codigo = input("Código (ej. AHORROS): ").strip()
+            codigo = input("Código: ").strip()
             nombre = input("Nombre (ej. Ahorros): ").strip()
             if codigo and nombre:
                 try:
-                    crear_tipo_cuenta(codigo, nombre)
+                    crear_tipo_cuenta(codigo, nombre, id_usuario_actual)
                     print("  Tipo de cuenta creado.")
                 except Exception as e:
                     _err_conexion(e)
             else:
                 print("  Faltan código o nombre.")
         elif op == "4":
-            tid = input("ID tipo: ").strip()
+            tid = input("ID tipo cuenta: ").strip()
             if not tid:
                 continue
             codigo = input("Código (vacío=no cambiar): ").strip()
             nombre = input("Nombre (vacío=no cambiar): ").strip()
             try:
                 actualizar_tipo_cuenta(
-                    tid, codigo=codigo or None, nombre=nombre or None
+                    tid,
+                    codigo=codigo or None,
+                    nombre=nombre or None,
+                    id_usuario_edita=id_usuario_actual,
                 )
-                print("  Tipo actualizado.")
+                print("  Tipo de cuenta actualizado.")
             except Exception as e:
                 _err_conexion(e)
         elif op == "5":
@@ -231,7 +294,7 @@ def menu_tipos_cuenta():
             if tid:
                 try:
                     eliminar_tipo_cuenta(tid)
-                    print("  Tipo eliminado.")
+                    print("  Tipo de cuenta eliminado.")
                 except Exception as e:
                     _err_conexion(e)
 
@@ -251,7 +314,7 @@ def menu_cuentas():
                 else:
                     for c in items:
                         print(
-                            f"  {c['id']} | {c['numero_cuenta']} | saldo={c['saldo']}"
+                            f"  {c['id_cuenta']} | {c['numero_cuenta']} | saldo={c['saldo']}"
                         )
             except Exception as e:
                 _err_conexion(e)
@@ -270,7 +333,7 @@ def menu_cuentas():
             saldo = input("Saldo inicial (0): ").strip() or "0"
             if num and uid and sid and tid:
                 try:
-                    crear_cuenta(num, uid, sid, tid, saldo)
+                    crear_cuenta(num, uid, sid, tid, saldo, id_usuario_actual)
                     print("  Cuenta creada.")
                 except Exception as e:
                     _err_conexion(e)
@@ -282,7 +345,11 @@ def menu_cuentas():
                 continue
             saldo = input("Nuevo saldo (vacío=no cambiar): ").strip()
             try:
-                actualizar_cuenta(cid, saldo=saldo if saldo else None)
+                actualizar_cuenta(
+                    cid,
+                    saldo=saldo if saldo else None,
+                    id_usuario_edita=id_usuario_actual,
+                )
                 print("  Cuenta actualizada.")
             except Exception as e:
                 _err_conexion(e)
@@ -310,7 +377,9 @@ def menu_tipos_transaccion():
                     print("  No hay tipos de transacción.")
                 else:
                     for t in items:
-                        print(f"  {t['id']} | {t['codigo']} | {t['nombre']}")
+                        print(
+                            f"  {t['id_tipo_transaccion']} | {t['codigo']} | {t['nombre']}"
+                        )
             except Exception as e:
                 _err_conexion(e)
         elif op == "2":
@@ -321,35 +390,38 @@ def menu_tipos_transaccion():
                 except Exception as e:
                     _err_conexion(e)
         elif op == "3":
-            codigo = input("Código (ej. DEPOSITO): ").strip()
+            codigo = input("Código: ").strip()
             nombre = input("Nombre (ej. Depósito): ").strip()
             if codigo and nombre:
                 try:
-                    crear_tipo_transaccion(codigo, nombre)
+                    crear_tipo_transaccion(codigo, nombre, id_usuario_actual)
                     print("  Tipo de transacción creado.")
                 except Exception as e:
                     _err_conexion(e)
             else:
                 print("  Faltan código o nombre.")
         elif op == "4":
-            tid = input("ID tipo: ").strip()
+            tid = input("ID tipo de transacción: ").strip()
             if not tid:
                 continue
             codigo = input("Código (vacío=no cambiar): ").strip()
             nombre = input("Nombre (vacío=no cambiar): ").strip()
             try:
                 actualizar_tipo_transaccion(
-                    tid, codigo=codigo or None, nombre=nombre or None
+                    tid,
+                    codigo=codigo or None,
+                    nombre=nombre or None,
+                    id_usuario_edita=id_usuario_actual,
                 )
-                print("  Tipo actualizado.")
+                print("  Tipo de transacción actualizado.")
             except Exception as e:
                 _err_conexion(e)
         elif op == "5":
-            tid = input("ID tipo a eliminar: ").strip()
+            tid = input("ID tipo de transacción a eliminar: ").strip()
             if tid:
                 try:
                     eliminar_tipo_transaccion(tid)
-                    print("  Tipo eliminado.")
+                    print("  Tipo de transacción eliminada.")
                 except Exception as e:
                     _err_conexion(e)
 
@@ -369,7 +441,7 @@ def menu_transacciones():
                 else:
                     for t in items:
                         print(
-                            f"  {t['id']} | cuenta={t['id_cuenta']} | monto={t['monto']} | {t.get('fecha')}"
+                            f"  {t['id_transacciones']} | cuenta={t['id_cuenta']} | monto={t['monto']} | {t.get('fecha')}"
                         )
             except Exception as e:
                 _err_conexion(e)
@@ -390,7 +462,9 @@ def menu_transacciones():
             desc = input("Descripción (opcional): ").strip() or None
             if cid and ttid and monto:
                 try:
-                    crear_transaccion(cid, ttid, monto, cid_dest, desc)
+                    crear_transaccion(
+                        cid, ttid, monto, cid_dest, desc, id_usuario_actual
+                    )
                     print("  Transacción creada.")
                 except Exception as e:
                     _err_conexion(e)
@@ -402,7 +476,11 @@ def menu_transacciones():
                 continue
             desc = input("Descripción (vacío=no cambiar): ").strip()
             try:
-                actualizar_transaccion(tid, descripcion=desc if desc else None)
+                actualizar_transaccion(
+                    tid,
+                    descripcion=desc if desc else None,
+                    id_usuario_edita=id_usuario_actual,
+                )
                 print("  Transacción actualizada.")
             except Exception as e:
                 _err_conexion(e)
@@ -429,6 +507,10 @@ def main():
     server.start()
     time.sleep(1.5)
     print("API lista.\n")
+
+    if not menu_login():
+        print("No se inició sesión")
+        return
     while True:
         print("\n========== MENÚ BANCO ==========")
         print(

@@ -37,7 +37,6 @@ class Cuenta(Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
 
-    usuario = relationship("Usuario", back_populates="cuentas")
     sucursal = relationship("Sucursal", back_populates="cuentas")
     tipo_cuenta = relationship("TipoCuenta", back_populates="cuentas")
     transacciones = relationship(
