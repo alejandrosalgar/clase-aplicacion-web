@@ -27,7 +27,11 @@ def listar_transacciones(db: Session = Depends(get_db)):
 
 @router.get("/{transaccion_id}")
 def obtener_transaccion(transaccion_id: UUID, db: Session = Depends(get_db)):
-    t = db.query(Transaccion).filter(Transaccion.id == transaccion_id).first()
+    t = (
+        db.query(Transaccion)
+        .filter(Transaccion.id_transacciones == transaccion_id)
+        .first()
+    )
     if not t:
         raise NotFoundError("Transacción no encontrada")
     data = TransaccionResponse.model_validate(t).model_dump(mode="json")
@@ -36,15 +40,20 @@ def obtener_transaccion(transaccion_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("", status_code=201)
 def crear_transaccion(dato: TransaccionCreate, db: Session = Depends(get_db)):
-    if not db.query(Cuenta).filter(Cuenta.id == dato.id_cuenta).first():
+    if not db.query(Cuenta).filter(Cuenta.id_cuenta == dato.id_cuenta).first():
         raise BadRequestError("Cuenta no encontrada")
-    if not db.query(TipoTransaccion).filter(
-        TipoTransaccion.id == dato.id_tipo_transaccion
-    ).first():
+    if (
+        not db.query(TipoTransaccion)
+        .filter(TipoTransaccion.id_tipo_transaccion == dato.id_tipo_transaccion)
+        .first()
+    ):
         raise BadRequestError("Tipo de transacción no encontrado")
-    if dato.id_cuenta_destino and not db.query(Cuenta).filter(
-        Cuenta.id == dato.id_cuenta_destino
-    ).first():
+    if (
+        dato.id_cuenta_destino
+        and not db.query(Cuenta)
+        .filter(Cuenta.id_cuenta == dato.id_cuenta_destino)
+        .first()
+    ):
         raise BadRequestError("Cuenta destino no encontrada")
     t = Transaccion(
         id_cuenta=dato.id_cuenta,
@@ -52,6 +61,7 @@ def crear_transaccion(dato: TransaccionCreate, db: Session = Depends(get_db)):
         monto=dato.monto,
         id_cuenta_destino=dato.id_cuenta_destino,
         descripcion=dato.descripcion,
+        id_usuario_creacion=dato.id_usuario_creacion,
     )
     db.add(t)
     db.commit()
@@ -64,7 +74,11 @@ def crear_transaccion(dato: TransaccionCreate, db: Session = Depends(get_db)):
 def actualizar_transaccion(
     transaccion_id: UUID, dato: TransaccionUpdate, db: Session = Depends(get_db)
 ):
-    t = db.query(Transaccion).filter(Transaccion.id == transaccion_id).first()
+    t = (
+        db.query(Transaccion)
+        .filter(Transaccion.id_transacciones == transaccion_id)
+        .first()
+    )
     if not t:
         raise NotFoundError("Transacción no encontrada")
     update = dato.model_dump(exclude_unset=True)
@@ -78,7 +92,11 @@ def actualizar_transaccion(
 
 @router.delete("/{transaccion_id}", status_code=204)
 def eliminar_transaccion(transaccion_id: UUID, db: Session = Depends(get_db)):
-    t = db.query(Transaccion).filter(Transaccion.id == transaccion_id).first()
+    t = (
+        db.query(Transaccion)
+        .filter(Transaccion.id_transacciones == transaccion_id)
+        .first()
+    )
     if not t:
         raise NotFoundError("Transacción no encontrada")
     db.delete(t)

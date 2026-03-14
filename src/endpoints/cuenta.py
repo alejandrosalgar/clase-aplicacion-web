@@ -24,7 +24,7 @@ def listar_cuentas(db: Session = Depends(get_db)):
 
 @router.get("/{cuenta_id}")
 def obtener_cuenta(cuenta_id: UUID, db: Session = Depends(get_db)):
-    cuenta = db.query(Cuenta).filter(Cuenta.id == cuenta_id).first()
+    cuenta = db.query(Cuenta).filter(Cuenta.id_cuenta == cuenta_id).first()
     if not cuenta:
         raise NotFoundError("Cuenta no encontrada")
     data = CuentaResponse.model_validate(cuenta).model_dump(mode="json")
@@ -35,11 +35,15 @@ def obtener_cuenta(cuenta_id: UUID, db: Session = Depends(get_db)):
 def crear_cuenta(dato: CuentaCreate, db: Session = Depends(get_db)):
     if db.query(Cuenta).filter(Cuenta.numero_cuenta == dato.numero_cuenta).first():
         raise ConflictError("Ya existe una cuenta con ese número", status_code=400)
-    if not db.query(Usuario).filter(Usuario.id == dato.id_usuario).first():
+    if not db.query(Usuario).filter(Usuario.id_usuario == dato.id_usuario).first():
         raise BadRequestError("Usuario no encontrado")
-    if not db.query(Sucursal).filter(Sucursal.id == dato.id_sucursal).first():
+    if not db.query(Sucursal).filter(Sucursal.id_sucursal == dato.id_sucursal).first():
         raise BadRequestError("Sucursal no encontrada")
-    if not db.query(TipoCuenta).filter(TipoCuenta.id == dato.id_tipo_cuenta).first():
+    if (
+        not db.query(TipoCuenta)
+        .filter(TipoCuenta.id_tipo_cuenta == dato.id_tipo_cuenta)
+        .first()
+    ):
         raise BadRequestError("Tipo de cuenta no encontrado")
     saldo = dato.saldo if dato.saldo is not None else 0
     cuenta = Cuenta(
@@ -48,6 +52,7 @@ def crear_cuenta(dato: CuentaCreate, db: Session = Depends(get_db)):
         id_sucursal=dato.id_sucursal,
         id_tipo_cuenta=dato.id_tipo_cuenta,
         saldo=saldo,
+        id_usuario_creacion=dato.id_usuario_creacion,
     )
     db.add(cuenta)
     db.commit()
@@ -60,22 +65,33 @@ def crear_cuenta(dato: CuentaCreate, db: Session = Depends(get_db)):
 def actualizar_cuenta(
     cuenta_id: UUID, dato: CuentaUpdate, db: Session = Depends(get_db)
 ):
-    cuenta = db.query(Cuenta).filter(Cuenta.id == cuenta_id).first()
+    cuenta = db.query(Cuenta).filter(Cuenta.id_cuenta == cuenta_id).first()
     if not cuenta:
         raise NotFoundError("Cuenta no encontrada")
     update = dato.model_dump(exclude_unset=True)
     if "numero_cuenta" in update:
-        if db.query(Cuenta).filter(
-            Cuenta.numero_cuenta == update["numero_cuenta"], Cuenta.id != cuenta_id
-        ).first():
+        if (
+            db.query(Cuenta)
+            .filter(
+                Cuenta.numero_cuenta == update["numero_cuenta"],
+                Cuenta.id_cuenta != cuenta_id,
+            )
+            .first()
+        ):
             raise ConflictError("Número de cuenta ya existe", status_code=400)
-    if "id_sucursal" in update and not db.query(Sucursal).filter(
-        Sucursal.id == update["id_sucursal"]
-    ).first():
+    if (
+        "id_sucursal" in update
+        and not db.query(Sucursal)
+        .filter(Sucursal.id_sucursal == update["id_sucursal"])
+        .first()
+    ):
         raise BadRequestError("Sucursal no encontrada")
-    if "id_tipo_cuenta" in update and not db.query(TipoCuenta).filter(
-        TipoCuenta.id == update["id_tipo_cuenta"]
-    ).first():
+    if (
+        "id_tipo_cuenta" in update
+        and not db.query(TipoCuenta)
+        .filter(TipoCuenta.id_tipo_cuenta == update["id_tipo_cuenta"])
+        .first()
+    ):
         raise BadRequestError("Tipo de cuenta no encontrado")
     for k, v in update.items():
         setattr(cuenta, k, v)
@@ -87,7 +103,7 @@ def actualizar_cuenta(
 
 @router.delete("/{cuenta_id}", status_code=204)
 def eliminar_cuenta(cuenta_id: UUID, db: Session = Depends(get_db)):
-    cuenta = db.query(Cuenta).filter(Cuenta.id == cuenta_id).first()
+    cuenta = db.query(Cuenta).filter(Cuenta.id_cuenta == cuenta_id).first()
     if not cuenta:
         raise NotFoundError("Cuenta no encontrada")
     db.delete(cuenta)

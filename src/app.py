@@ -2,6 +2,7 @@
 Aplicación FastAPI. Ejecutar con:
   uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
 """
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -23,6 +24,7 @@ from src.endpoints import (
     cuenta,
     tipo_transaccion,
     transaccion,
+    login,
 )
 
 # Importar modelos para que Base.metadata los conozca
@@ -58,6 +60,7 @@ app.include_router(tipo_cuenta.router)
 app.include_router(cuenta.router)
 app.include_router(tipo_transaccion.router)
 app.include_router(transaccion.router)
+app.include_router(login.router)
 
 
 @app.get("/")

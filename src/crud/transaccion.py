@@ -1,6 +1,7 @@
 """
 CRUD de transaccion: conexión con los endpoints /transacciones.
 """
+
 from src.crud.client import _delete, _get, _post, _put
 
 
@@ -18,6 +19,7 @@ def crear_transaccion(
     monto: str | float,
     id_cuenta_destino: str | None = None,
     descripcion: str | None = None,
+    id_usuario_creacion: str = None,
 ) -> dict:
     payload = {
         "id_cuenta": id_cuenta,
@@ -25,6 +27,7 @@ def crear_transaccion(
         "monto": str(monto) if not isinstance(monto, (int, float)) else monto,
         "id_cuenta_destino": id_cuenta_destino,
         "descripcion": descripcion,
+        "id_usuario_creacion": id_usuario_creacion,
     }
     return _post("/transacciones", json=payload)
 
@@ -32,10 +35,13 @@ def crear_transaccion(
 def actualizar_transaccion(
     transaccion_id: str,
     descripcion: str | None = None,
+    id_usuario_edita: str | None = None,
 ) -> dict:
     payload = {}
     if descripcion is not None:
         payload["descripcion"] = descripcion
+    if id_usuario_edita is not None:
+        payload["id_usuario_edita"] = id_usuario_edita
     return _put(f"/transacciones/{transaccion_id}", json=payload)
 
 

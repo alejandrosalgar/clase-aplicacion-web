@@ -22,7 +22,7 @@ def listar_usuarios(db: Session = Depends(get_db)):
 
 @router.get("/{usuario_id}")
 def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    usuario = db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
     if not usuario:
         raise NotFoundError("Usuario no encontrado")
     data = UsuarioResponse.model_validate(usuario).model_dump(mode="json")
@@ -42,6 +42,7 @@ def crear_usuario(dato: UsuarioCreate, db: Session = Depends(get_db)):
         contraseña_hash=hash_password(dato.contraseña),
         telefono=dato.telefono,
         activo=dato.activo,
+        rol=dato.rol,
     )
     db.add(usuario)
     db.commit()
@@ -51,8 +52,10 @@ def crear_usuario(dato: UsuarioCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{usuario_id}")
-def actualizar_usuario(usuario_id: UUID, dato: UsuarioUpdate, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+def actualizar_usuario(
+    usuario_id: UUID, dato: UsuarioUpdate, db: Session = Depends(get_db)
+):
+    usuario = db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
     if not usuario:
         raise NotFoundError("Usuario no encontrado")
     update = dato.model_dump(exclude_unset=True)
@@ -68,7 +71,7 @@ def actualizar_usuario(usuario_id: UUID, dato: UsuarioUpdate, db: Session = Depe
 
 @router.delete("/{usuario_id}", status_code=204)
 def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    usuario = db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
     if not usuario:
         raise NotFoundError("Usuario no encontrado")
     db.delete(usuario)

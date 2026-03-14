@@ -25,6 +25,7 @@ class UsuarioCreate(UsuarioBase):
         max_length=100,
         description="Contraseña (mínimo 8 caracteres)",
     )
+    rol: str = Field(..., min_length=1, max_length=20)
 
     @field_validator("contraseña")
     @classmethod
@@ -45,11 +46,13 @@ class UsuarioUpdate(BaseModel):
     email: EmailStr | None = None
     contraseña: str | None = Field(None, min_length=8, max_length=100)
     telefono: str | None = Field(None, max_length=20)
+    rol: str | None = None
     activo: bool | None = None
 
 
 class UsuarioResponse(UsuarioBase):
-    id: UUID
+    id_usuario: UUID
+    rol: str
     fecha_creacion: datetime | None = None
     fecha_edicion: datetime | None = None
 
