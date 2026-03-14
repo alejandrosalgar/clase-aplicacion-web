@@ -19,10 +19,8 @@ class Usuario(Base):
     email = Column(String(150), unique=True, index=True, nullable=False)
     contraseña_hash = Column(String(255), nullable=False)
     telefono = Column(String(20), nullable=True)
-    rol = Column(String(20), nullable=True)
+    rol = Column(String(20), nullable=False)
     activo = Column(Boolean, default=True)
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
-
-    cuentas = relationship("Cuenta", back_populates="usuario")
