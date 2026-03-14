@@ -1,145 +1,96 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
-\usepackage{fancyhdr}
-\usepackage{hyperref}
 \usepackage{xcolor}
-
+\usepackage{framed}
+\usepackage{hyperref}
 \geometry{margin=2.5cm}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{0.6em}
 
 \titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
-\pagestyle{fancy}
-\fancyhf{}
-\rhead{APLICACIÓN Y SERVICIOS WEB}
-\lhead{Enunciado del examen}
-\cfoot{\thepage}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
 
-\definecolor{azul}{RGB}{0,51,102}
+\definecolor{boxgray}{RGB}{240,240,240}
+\newenvironment{enunciado}{\begin{leftbar}\noindent\textbf{Enunciado:}\par\vspace{0.3em}}{\end{leftbar}}
+
+\title{Enunciado de examen \\ Aplicación y Servicios Web}
+\author{Curso 2026-1}
+\date{}
 
 \begin{document}
+\maketitle
+\thispagestyle{empty}
+\vspace{1em}
 
-\begin{center}
-{\LARGE \textbf{ENUNCIADO DEL EXAMEN}} \\[0.4cm]
-{\large Aplicación y Servicios Web} \\[0.2cm]
-{\normalsize API REST con FastAPI, base de datos en la nube y menú CRUD} \\[0.8cm]
-{\bfseries Fecha máxima de entrega: domingo 8 de marzo}
-\end{center}
+\begin{enunciado}
+Se continúa con el mismo proyecto de la entrega anterior, igual para todo el semestre. La entrega se realiza en \textbf{los mismos grupos de trabajo} ya definidos.
+\end{enunciado}
 
-\vspace{1cm}
+\section{Objetivos de la entrega}
 
-\section{Objetivo}
+A continuación se detallan los requisitos que deben cumplir en esta entrega.
 
-Desarrollar una aplicación que exponga una \textbf{API REST} con \textbf{FastAPI}, utilice \textbf{Uvicorn} como servidor, se conecte a una base de datos PostgreSQL en \textbf{Neon} con un número de entidades entre 6 y 10, y ofrezca un \textbf{menú por consola} para realizar operaciones CRUD sobre los recursos.
-
-\section{Requisitos técnicos}
-
-\begin{enumerate}[leftmargin=*]
-  \item \textbf{API REST}
-  \begin{itemize}
-    \item Implementar una API con \textbf{FastAPI}.
-    \item Servir la aplicación con \textbf{Uvicorn} (incluido en la ejecución del proyecto o por comando).
-  \end{itemize}
-
-  \item \textbf{Endpoints}
-  \begin{itemize}
-    \item Definir \textbf{endpoints} para cada recurso (entidad) que permitan:
-    \begin{itemize}
-      \item Listar todos los registros (GET).
-      \item Obtener un registro por identificador (GET por id).
-      \item Crear un registro (POST).
-      \item Actualizar un registro (PUT).
-      \item Eliminar un registro (DELETE).
-    \end{itemize}
-    \item Los endpoints deben estar organizados (por ejemplo, en módulos o routers por entidad).
-  \end{itemize}
-
-  \item \textbf{Base de datos Neon}
-  \begin{itemize}
-    \item Usar PostgreSQL en \textbf{Neon} (\url{https://neon.tech}) como base de datos en la nube.
-    \item Definir entre \textbf{6 y 10 entidades} (tablas) con relaciones coherentes (claves foráneas si aplica).
-    \item Utilizar un ORM (por ejemplo SQLAlchemy) para modelos y conexión.
-    \item Gestionar la URL de conexión mediante variables de entorno (por ejemplo \texttt{.env}) y no incluir credenciales en el código.
-  \end{itemize}
-
-  \item \textbf{Menú y CRUD}
-  \begin{itemize}
-    \item Implementar un \textbf{menú por consola} que permita al usuario:
-    \begin{itemize}
-      \item Elegir la entidad o recurso con el que trabajar.
-      \item Listar, crear, ver uno, actualizar y eliminar registros (operaciones CRUD).
-    \end{itemize}
-    \item El menú debe consumir la API (llamadas HTTP a los endpoints), no acceder directamente a la base de datos.
-  \end{itemize}
-
-  \item \textbf{Estilo de código y documentación}
-  \begin{itemize}
-    \item Respetar las normas \textbf{PEP 8} (estilo de código en Python: indentación, longitud de líneas, nombres, espaciado, etc.).
-    \item Incluir \textbf{docstrings} en módulos, clases y funciones relevantes (descripción breve del propósito, parámetros y retorno cuando aplique).
-  \end{itemize}
-\end{enumerate}
-
-\section{Estructura sugerida del proyecto}
+\subsection{Pipeline (CI/CD) y archivo YML}
 
 \begin{itemize}[leftmargin=*]
-  \item \texttt{entities} o \texttt{models}: definición de las tablas/entidades.
-  \item \texttt{database}: configuración de conexión a Neon y sesión.
-  \item \texttt{schemas}: modelos Pydantic para validación de request/response (opcional pero recomendado).
-  \item \texttt{endpoints} o \texttt{routers}: rutas FastAPI por recurso.
-  \item \texttt{crud} (cliente): lógica que llama a los endpoints desde el menú (cliente HTTP).
-  \item \texttt{main} o script principal: menú por consola que utiliza el CRUD cliente.
-  \item Archivo de aplicación FastAPI (por ejemplo \texttt{app.py}) que registre los routers y arranque con Uvicorn.
+  \item Se debe implementar un \textbf{pipeline} cuyo archivo YML incluya:
+  \begin{itemize}
+    \item \textbf{Despliegue o sincronización con la base de datos} (crear/actualizar esquema y, si aplica, datos iniciales).
+    \item \textbf{Otras acciones a elección del estudiante}, por ejemplo:
+    \begin{itemize}
+      \item Lint y formato de código (p. ej. Ruff, flake8, black).
+      \item Ejecución de pruebas (p. ej. pytest).
+      \item Verificación de vulnerabilidades en dependencias (p. ej. pip-audit, safety).
+      \item Build de imagen Docker.
+      \item Despliegue a un entorno (staging/producción).
+      \item Cualquier otra acción coherente con el proyecto que el estudiante justifique.
+    \end{itemize}
+  \end{itemize}
+  \item El pipeline debe ejecutarse con \textbf{merge (o push) en la rama \texttt{dev}}, y \textbf{no} en las ramas \texttt{qa} ni \texttt{prod}.
 \end{itemize}
 
-\section{Trabajo con Git y GitHub}
-
-El desarrollo debe realizarse en un repositorio en \textbf{GitHub}. Se evaluará el uso de un flujo de trabajo con ramas y Pull Requests (PR).
-
-\begin{enumerate}[leftmargin=*]
-  \item \textbf{Ramas principales}
-  \begin{itemize}
-    \item \texttt{dev}: desarrollo.
-    \item \texttt{qa}: pruebas / calidad.
-    \item \texttt{prod}: producción.
-  \end{itemize}
-
-  \item \textbf{Flujo de PR por rama}
-  \begin{itemize}
-    \item Crear ramas de trabajo (features) y integrar mediante \textbf{Pull Requests}:
-    \begin{itemize}
-      \item \texttt{feat-dev}: rama de desarrollo; se integra en \texttt{dev} vía PR.
-      \item \texttt{feat-qa}: integración hacia \texttt{qa} vía PR (desde \texttt{dev} o rama de release).
-      \item \texttt{feat-prod}: integración hacia \texttt{prod} vía PR (desde \texttt{qa} o rama de release).
-    \end{itemize}
-    \item Cada avance hacia \texttt{dev}, \texttt{qa} y \texttt{prod} debe hacerse mediante PR en GitHub (no merges directos en local sin PR).
-  \end{itemize}
-
-  \item \textbf{Evaluación individual por commits}
-  \begin{itemize}
-    \item La nota en esta parte será \textbf{individual} según el historial de \textbf{commits} en el repositorio.
-    \item Se tendrá en cuenta la autoría de los commits, la claridad de los mensajes y la trazabilidad del trabajo (qué aportó cada integrante en las ramas y PR).
-  \end{itemize}
-\end{enumerate}
-
-\section{Criterios de evaluación}
+\subsection{Base de datos: migración y seeder}
 
 \begin{itemize}[leftmargin=*]
-  \item Funcionamiento de la API con FastAPI y Uvicorn.
-  \item Correcta definición y uso de endpoints (verbos HTTP y recursos).
-  \item Conexión a Neon y definición de entre 6 y 10 entidades con sentido lógico.
-  \item Menú operativo que realice CRUD mediante llamadas a la API.
-  \item Organización del código y buenas prácticas (variables de entorno, sin credenciales en código).
-  \item Cumplimiento de \textbf{PEP 8} y uso de \textbf{docstrings} en el código.
-  \item \textbf{Git/GitHub}: uso de ramas \texttt{dev}, \texttt{qa}, \texttt{prod} y flujo de PR (\texttt{feat-dev}, \texttt{feat-qa}, \texttt{feat-prod}); nota individual según commits.
+  \item \textbf{Seeder:} se debe crear un \textbf{seeder} que inserte datos iniciales en la base de datos (catálogos, usuario por defecto, etc.), de forma idempotente cuando sea posible.
+  \item \textbf{Función de actualización de la BD:} además de crear las tablas desde el ORM (por ejemplo \texttt{create\_all}), se debe tener un mecanismo para \textbf{actualizar} el esquema de la base de datos (nuevas columnas, índices, migraciones), no solo la creación inicial.
+  \item Tanto el \textbf{seeder} como la \textbf{actualización de la BD} deben estar integrados en el pipeline (archivo YML), de modo que en el CI se ejecuten la creación/actualización del esquema y, si aplica, el seed.
 \end{itemize}
 
-\vspace{0.5cm}
-\hrule
-\vspace{0.3cm}
-{\small Documento generado para el curso de Aplicación y Servicios Web.}
+\subsection{Carpeta \texttt{core} y manejo de errores}
+
+\begin{itemize}[leftmargin=*]
+  \item Se debe utilizar una carpeta \textbf{\texttt{core}} en el proyecto con el manejo centralizado de \textbf{errores y excepciones} (por ejemplo: excepciones personalizadas, manejadores globales en FastAPI, respuestas de error homogéneas).
+  \item La API debe apoyarse en esta capa \texttt{core} para devolver respuestas de error consistentes (404, 400, 409, etc.) en lugar de depender únicamente de excepciones genéricas del framework.
+\end{itemize}
+
+\subsection{Evaluación de Pull Requests}
+
+\begin{itemize}[leftmargin=*]
+  \item Se seguirá evaluando los \textbf{Pull Requests} desde las ramas de trabajo (por ejemplo \texttt{feat/*}) hacia la rama de integración \textbf{\texttt{dev-qa-prod}} (o la rama que el docente indique para integración).
+\end{itemize}
+
+\subsection{Video y README}
+
+\begin{itemize}[leftmargin=*]
+  \item Se debe incluir un \textbf{video} enlazado o embebido en el \textbf{README} del repositorio.
+  \item En el video debe evidenciarse:
+  \begin{itemize}
+    \item La ejecución del \textbf{pipeline} (paso a paso en GitHub Actions o similar).
+    \item La \textbf{creación de los nuevos campos/tablas en la base de datos} (por ejemplo: ejecución de migraciones, seeder, o captura del esquema actualizado en la BD).
+  \end{itemize}
+\end{itemize}
+
+\subsection{Fecha límite}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Plazo de entrega:} hasta el \textbf{sábado 28 de marzo}.
+\end{itemize}
+
+\vspace{1.5em}
+\noindent\textit{Resumen: mismos grupos de trabajo; mismo proyecto todo el semestre; pipeline YML con despliegue/sincronización a BD y otras acciones a elección; seeder y función de actualización de BD integrados en el YML; carpeta \texttt{core} con errores y excepciones; pipeline disparado en \texttt{dev}; PRs desde \texttt{feat} hacia \texttt{dev-qa-prod}; video en el README mostrando el pipeline y la creación de campos en la BD; entrega hasta el sábado 28 de marzo.}
 
 \end{document}
