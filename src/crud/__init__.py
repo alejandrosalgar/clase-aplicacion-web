@@ -3,6 +3,7 @@ Cliente CRUD que llama a los endpoints de la API (lógica banco).
 Nombres alineados con entities: usuarios, sucursal, tipo_cuenta, cuenta, tipo_transaccion, transaccion.
 La API debe estar corriendo (uvicorn src.app:app --port 8000).
 """
+
 from src.crud.usuarios import (
     listar_usuarios,
     obtener_usuario,
@@ -45,6 +46,7 @@ from src.crud.transaccion import (
     actualizar_transaccion,
     eliminar_transaccion,
 )
+from src.crud.login import login
 
 __all__ = [
     "listar_usuarios",
@@ -77,4 +79,5 @@ __all__ = [
     "crear_transaccion",
     "actualizar_transaccion",
     "eliminar_transaccion",
+    "login",
 ]

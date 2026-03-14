@@ -10,16 +10,19 @@ class TipoCuentaBase(BaseModel):
 
 
 class TipoCuentaCreate(TipoCuentaBase):
-    pass
+    id_usuario_creacion: UUID
 
 
 class TipoCuentaUpdate(BaseModel):
     codigo: str | None = None
     nombre: str | None = None
+    id_usuario_edita: UUID | None = None
 
 
 class TipoCuentaResponse(TipoCuentaBase):
-    id: UUID
+    id_tipo_cuenta: UUID
+    id_usuario_creacion: UUID
+    id_usuario_edita: UUID | None = None
     fecha_creacion: datetime | None = None
     fecha_edicion: datetime | None = None
 

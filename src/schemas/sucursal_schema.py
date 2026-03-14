@@ -12,7 +12,7 @@ class SucursalBase(BaseModel):
 
 
 class SucursalCreate(SucursalBase):
-    pass
+    id_usuario_creacion: UUID
 
 
 class SucursalUpdate(BaseModel):
@@ -20,10 +20,12 @@ class SucursalUpdate(BaseModel):
     direccion: str | None = None
     ciudad: str | None = None
     telefono: str | None = None
+    id_usuario_edita: UUID | None = None
 
 
 class SucursalResponse(SucursalBase):
-    id: UUID
+    id_sucursal: UUID
+    id_usuario_creacion: UUID
     fecha_creacion: datetime | None = None
     fecha_edicion: datetime | None = None
 

@@ -14,16 +14,20 @@ class TransaccionBase(BaseModel):
 
 
 class TransaccionCreate(TransaccionBase):
-    pass
+    id_usuario_creacion: UUID
 
 
 class TransaccionUpdate(BaseModel):
     descripcion: str | None = None
+    id_usuario_edita: UUID | None = None
 
 
 class TransaccionResponse(TransaccionBase):
-    id: UUID
+    id_transacciones: UUID
+    id_usuario_creacion: UUID
     fecha: datetime | None = None
+    fecha_creacion: datetime | None = None
+    fecha_edicion: datetime | None = None
 
     class Config:
         from_attributes = True

@@ -14,6 +14,7 @@ class UsuarioBase(BaseModel):
 
 class UsuarioCreate(UsuarioBase):
     contraseña: str
+    rol: str
 
 
 class UsuarioUpdate(BaseModel):
@@ -22,11 +23,13 @@ class UsuarioUpdate(BaseModel):
     email: EmailStr | None = None
     contraseña: str | None = None
     telefono: str | None = None
+    rol: str | None = None
     activo: bool | None = None
 
 
 class UsuarioResponse(UsuarioBase):
-    id: UUID
+    id_usuario: UUID
+    rol: str
     fecha_creacion: datetime | None = None
     fecha_edicion: datetime | None = None
 
