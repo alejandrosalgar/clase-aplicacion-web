@@ -3,9 +3,9 @@ name: CI
 
 on:
   push:
-    branches: [dev-qa, prod]
+    branches: [dev, qa, prod]
   pull_request:
-    branches: [dev-qa, prod]
+    branches: [dev, qa, prod]
 
 # Cancelar ejecuciones obsoletas cuando hay un nuevo push en la misma rama
 concurrency:
