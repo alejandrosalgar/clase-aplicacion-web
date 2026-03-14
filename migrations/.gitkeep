@@ -1,0 +1,2 @@
+# Aquí van archivos .sql para alteraciones de esquema (ej: 002_add_campo_xyz.sql).
+# migrate_db.py los ejecuta en orden alfabético. El esquema base sale de los modelos.

@@ -1,12 +1,11 @@
-# Pipeline CI: validación, lint y pruebas
-# Se ejecuta en cada push y en pull requests a main/master
+# Pipeline CI: validación, lint, migración y seed (solo dev-qa y prod)
 name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [dev-qa, prod]
   pull_request:
-    branches: [main, master]
+    branches: [dev-qa, prod]
 
 jobs:
   lint-and-test:
@@ -59,8 +58,11 @@ jobs:
       - name: Formato con Ruff
         run: ruff format src --check
 
-      - name: Crear tablas (BD de prueba)
-        run: python init_db.py
+      - name: Crear/actualizar BD (migración)
+        run: python migrate_db.py
+
+      - name: Seed (datos iniciales)
+        run: python seed_db.py
 
       - name: Pruebas (smoke test)
         run: |

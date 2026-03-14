@@ -10,6 +10,7 @@ API REST con **FastAPI**, **SQLAlchemy** y **PostgreSQL** para gestión de usuar
 - **Manejo de errores** centralizado y respuestas de error homogéneas.
 - **Estructuras de respuesta** (éxito y error) en todos los endpoints.
 - **Pipelines** (CI) con GitHub Actions: lint, formato y pruebas.
+- **Seguridad**: hash de contraseñas (bcrypt) y buenas prácticas en errores.
 
 ---
 
@@ -27,7 +28,8 @@ API REST con **FastAPI**, **SQLAlchemy** y **PostgreSQL** para gestión de usuar
 │   ├── schemas/            # Modelos Pydantic (validación y serialización)
 │   ├── endpoints/          # Rutas FastAPI por recurso
 │   ├── crud/               # Cliente HTTP (httpx) que consume la API
-│   └── utils/              # Utilidades (ej. hash de contraseñas)
+│   └── utils/              # Utilidades
+│       └── security.py     # Hash de contraseñas (bcrypt)
 ├── main.py                 # Menú por consola que usa el CRUD contra la API
 ├── init_db.py              # Crear tablas en la base de datos
 ├── requirements.txt
@@ -65,6 +67,12 @@ Si los datos no cumplen las reglas, FastAPI devuelve **422** con el formato de e
 ---
 
 ## 2. Manejo de errores
+
+### ¿Qué es el manejo de errores unificado?
+
+Es una forma de que **todos los fallos** de la API (recurso no encontrado, datos inválidos, conflicto, error interno) se devuelvan con **la misma estructura JSON** y los **códigos HTTP correctos**. Así el cliente (frontend, otra API o una app) siempre sabe qué esperar: un objeto con `success: false`, `error.code`, `error.message` y opcionalmente `error.details`.
+
+### Cómo lo implementamos
 
 En `src/core/` se definen:
 
@@ -125,16 +133,30 @@ El cliente en `src/crud/client.py` extrae automáticamente `data` de las respues
 
 ## 4. Pipelines (CI)
 
+### ¿Qué es un pipeline?
+
+Un **pipeline** (tubería o flujo de integración continua, CI) es una secuencia de pasos **automáticos** que se ejecutan cada vez que se hace push o un pull request al repositorio. Sirve para:
+
+- **Detectar problemas antes** de integrar código: estilo, errores de lint, pruebas que fallen.
+- **Garantizar calidad**: que el código cumpla reglas de formato y que la aplicación arranque y responda correctamente.
+- **Documentar** cómo se valida el proyecto (lint, formato, tests) sin depender de que cada desarrollador lo recuerde.
+
+En este proyecto el pipeline usa **GitHub Actions**: se define en un archivo YAML y GitHub lo ejecuta en cada cambio relevante.
+
+### Cómo lo implementamos
+
 En `.github/workflows/ci.yml` se define un pipeline que se ejecuta en **push** y **pull requests** a `main`/`master`:
 
 1. **Checkout** del repositorio.
 2. **Python 3.11** y caché de pip.
 3. **Servicio PostgreSQL** para pruebas (con `SSL_MODE=disable` en CI).
 4. **Instalación** de dependencias (`requirements.txt`) y **Ruff**.
-5. **Lint**: `ruff check src`.
-6. **Formato**: `ruff format src --check`.
+5. **Lint**: `ruff check src` — revisa estilo y posibles errores.
+6. **Formato**: `ruff format src --check` — comprueba que el código esté formateado.
 7. **Creación de tablas**: `python init_db.py` contra la BD de prueba.
 8. **Smoke test**: petición `GET /` y comprobación de que la respuesta tiene `success: true` y `data`.
+
+Si algún paso falla, el pipeline marca el commit o el PR como fallido; así se evita integrar código roto.
 
 Para usar Ruff en local (opcional):
 
@@ -143,6 +165,31 @@ pip install ruff
 ruff check src
 ruff format src
 ```
+
+---
+
+## 5. Seguridad
+
+### ¿Qué cubrimos?
+
+En servicios web, **seguridad** incluye (entre otras cosas):
+
+- **No almacenar contraseñas en texto plano**: si la base de datos se filtra, las contraseñas deben estar hasheadas para que no sean usables directamente.
+- **Validación de entrada**: evitar datos mal formados o maliciosos (ya cubierto con Pydantic en la sección 1).
+- **Estructuras de error controladas**: no revelar detalles internos en respuestas 500 (ya cubierto en la sección 2).
+
+En este proyecto se implementa **hash de contraseñas** y validación de datos; la autenticación con JWT u OAuth quedaría como ampliación futura.
+
+### Cómo lo implementamos
+
+- **Hash de contraseñas** (`src/utils/security.py`):
+  - Se usa **bcrypt** para generar un hash con salt de la contraseña antes de guardarla.
+  - La función `hash_password(plain: str) -> str` recibe la contraseña en texto plano y devuelve el hash en formato string para almacenar en la BD.
+  - Las contraseñas nunca se guardan ni se devuelven en claro en la API.
+
+- **Validación**: los schemas Pydantic (longitud mínima de contraseña, patrones de usuario, etc.) evitan entradas triviales o peligrosas.
+
+- **Errores**: el manejador genérico (500) devuelve un mensaje genérico ("Error interno del servidor") sin exponer trazas ni detalles internos al cliente.
 
 ---
 
@@ -219,3 +266,4 @@ Con la API en marcha:
 | **Errores** | Excepciones en `src/core/exceptions.py` y manejadores en `error_handlers.py`. |
 | **Respuestas** | `success_response()` y formato de error unificado en todos los endpoints. |
 | **Pipeline** | GitHub Actions: lint (Ruff), formato y smoke test con PostgreSQL. |
+| **Seguridad** | Hash de contraseñas con bcrypt en `src/utils/security.py`; errores 500 sin detalles internos. |
