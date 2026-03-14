@@ -21,7 +21,11 @@ def listar_tipos_transaccion(db: Session = Depends(get_db)):
 
 @router.get("/{tipo_id}", response_model=TipoTransaccionResponse)
 def obtener_tipo_transaccion(tipo_id: UUID, db: Session = Depends(get_db)):
-    tipo = db.query(TipoTransaccion).filter(TipoTransaccion.id == tipo_id).first()
+    tipo = (
+        db.query(TipoTransaccion)
+        .filter(TipoTransaccion.id_tipo_transaccion == tipo_id)
+        .first()
+    )
     if not tipo:
         raise HTTPException(status_code=404, detail="Tipo de transacción no encontrado")
     return tipo
@@ -29,13 +33,15 @@ def obtener_tipo_transaccion(tipo_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("", response_model=TipoTransaccionResponse, status_code=201)
 def crear_tipo_transaccion(dato: TipoTransaccionCreate, db: Session = Depends(get_db)):
-    if db.query(TipoTransaccion).filter(
-        TipoTransaccion.codigo == dato.codigo
-    ).first():
+    if db.query(TipoTransaccion).filter(TipoTransaccion.codigo == dato.codigo).first():
         raise HTTPException(
             status_code=400, detail="Ya existe un tipo de transacción con ese código"
         )
-    tipo = TipoTransaccion(codigo=dato.codigo, nombre=dato.nombre)
+    tipo = TipoTransaccion(
+        codigo=dato.codigo,
+        nombre=dato.nombre,
+        id_usuario_creacion=dato.id_usuario_creacion,
+    )
     db.add(tipo)
     db.commit()
     db.refresh(tipo)
@@ -46,13 +52,23 @@ def crear_tipo_transaccion(dato: TipoTransaccionCreate, db: Session = Depends(ge
 def actualizar_tipo_transaccion(
     tipo_id: UUID, dato: TipoTransaccionUpdate, db: Session = Depends(get_db)
 ):
-    tipo = db.query(TipoTransaccion).filter(TipoTransaccion.id == tipo_id).first()
+    tipo = (
+        db.query(TipoTransaccion)
+        .filter(TipoTransaccion.id_tipo_transaccion == tipo_id)
+        .first()
+    )
     if not tipo:
         raise HTTPException(status_code=404, detail="Tipo de transacción no encontrado")
     update = dato.model_dump(exclude_unset=True)
-    if "codigo" in update and db.query(TipoTransaccion).filter(
-        TipoTransaccion.codigo == update["codigo"], TipoTransaccion.id != tipo_id
-    ).first():
+    if (
+        "codigo" in update
+        and db.query(TipoTransaccion)
+        .filter(
+            TipoTransaccion.codigo == update["codigo"],
+            TipoTransaccion.id_tipo_transaccion != tipo_id,
+        )
+        .first()
+    ):
         raise HTTPException(status_code=400, detail="El código ya existe")
     for k, v in update.items():
         setattr(tipo, k, v)
@@ -63,7 +79,11 @@ def actualizar_tipo_transaccion(
 
 @router.delete("/{tipo_id}", status_code=204)
 def eliminar_tipo_transaccion(tipo_id: UUID, db: Session = Depends(get_db)):
-    tipo = db.query(TipoTransaccion).filter(TipoTransaccion.id == tipo_id).first()
+    tipo = (
+        db.query(TipoTransaccion)
+        .filter(TipoTransaccion.id_tipo_transaccion == tipo_id)
+        .first()
+    )
     if not tipo:
         raise HTTPException(status_code=404, detail="Tipo de transacción no encontrado")
     db.delete(tipo)

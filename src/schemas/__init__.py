@@ -28,6 +28,7 @@ from src.schemas.transaccion_schema import (
     TransaccionUpdate,
     TransaccionResponse,
 )
+from src.schemas.login_schema import Login
 
 __all__ = [
     "UsuarioCreate",
@@ -48,4 +49,5 @@ __all__ = [
     "TransaccionCreate",
     "TransaccionUpdate",
     "TransaccionResponse",
+    "Login",
 ]
