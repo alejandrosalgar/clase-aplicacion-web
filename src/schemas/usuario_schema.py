@@ -56,5 +56,5 @@ class UsuarioResponse(UsuarioBase):
     fecha_creacion: datetime | None = None
     fecha_edicion: datetime | None = None
 
-    class Config:
+    class Config:   
         from_attributes = True

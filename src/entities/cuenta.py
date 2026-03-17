@@ -44,3 +44,4 @@ class Cuenta(Base):
     )
     usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
+    
