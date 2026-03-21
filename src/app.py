@@ -6,7 +6,16 @@ Aplicación FastAPI. Ejecutar con:
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import HTTPException, RequestValidationError
 
+from src.core.exceptions import AppException
+from src.core.error_handlers import (
+    app_exception_handler,
+    generic_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
+from src.core.responses import success_response
 from src.database.config import create_tables
 from src.endpoints import (
     usuarios,
@@ -35,9 +44,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="API Banco",
-    description="API con FastAPI, SQLAlchemy y PostgreSQL - Usuarios, Sucursales, Cuentas, Transacciones",
+    description="API con FastAPI, SQLAlchemy y PostgreSQL - Usuarios, Sucursales, Cuentas, Transacciones. Incluye validación de datos, manejo de errores unificado y estructuras de respuesta estándar.",
     lifespan=lifespan,
 )
+
+# Manejadores globales de excepciones (estructura de respuesta unificada)
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 app.include_router(usuarios.router)
 app.include_router(sucursal.router)
@@ -50,4 +65,7 @@ app.include_router(login.router)
 
 @app.get("/")
 def inicio():
-    return {"mensaje": "API Banco", "docs": "/docs"}
+    return success_response(
+        data={"mensaje": "API Banco", "docs": "/docs"},
+        message="Bienvenido a la API Banco",
+    )

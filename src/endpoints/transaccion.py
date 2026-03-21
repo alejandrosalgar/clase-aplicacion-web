@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.core.exceptions import BadRequestError, NotFoundError
+from src.core.responses import success_response
 from src.database.config import get_db
 from src.entities.cuenta import Cuenta
 from src.entities.transaccion import Transaccion
@@ -16,12 +18,14 @@ from src.schemas.transaccion_schema import (
 router = APIRouter(prefix="/transacciones", tags=["transacciones"])
 
 
-@router.get("", response_model=list[TransaccionResponse])
+@router.get("")
 def listar_transacciones(db: Session = Depends(get_db)):
-    return db.query(Transaccion).all()
+    transacciones = db.query(Transaccion).all()
+    data = [TransaccionResponse.model_validate(t).model_dump(mode="json") for t in transacciones]
+    return success_response(data=data, message="Listado de transacciones")
 
 
-@router.get("/{transaccion_id}", response_model=TransaccionResponse)
+@router.get("/{transaccion_id}")
 def obtener_transaccion(transaccion_id: UUID, db: Session = Depends(get_db)):
     t = (
         db.query(Transaccion)
@@ -29,27 +33,28 @@ def obtener_transaccion(transaccion_id: UUID, db: Session = Depends(get_db)):
         .first()
     )
     if not t:
-        raise HTTPException(status_code=404, detail="Transacción no encontrada")
-    return t
+        raise NotFoundError("Transacción no encontrada")
+    data = TransaccionResponse.model_validate(t).model_dump(mode="json")
+    return success_response(data=data, message="Transacción obtenida")
 
 
-@router.post("", response_model=TransaccionResponse, status_code=201)
+@router.post("", status_code=201)
 def crear_transaccion(dato: TransaccionCreate, db: Session = Depends(get_db)):
     if not db.query(Cuenta).filter(Cuenta.id_cuenta == dato.id_cuenta).first():
-        raise HTTPException(status_code=400, detail="Cuenta no encontrada")
+        raise BadRequestError("Cuenta no encontrada")
     if (
         not db.query(TipoTransaccion)
         .filter(TipoTransaccion.id_tipo_transaccion == dato.id_tipo_transaccion)
         .first()
     ):
-        raise HTTPException(status_code=400, detail="Tipo de transacción no encontrado")
+        raise BadRequestError("Tipo de transacción no encontrado")
     if (
         dato.id_cuenta_destino
         and not db.query(Cuenta)
         .filter(Cuenta.id_cuenta == dato.id_cuenta_destino)
         .first()
     ):
-        raise HTTPException(status_code=400, detail="Cuenta destino no encontrada")
+        raise BadRequestError("Cuenta destino no encontrada")
     t = Transaccion(
         id_cuenta=dato.id_cuenta,
         id_tipo_transaccion=dato.id_tipo_transaccion,
@@ -61,10 +66,11 @@ def crear_transaccion(dato: TransaccionCreate, db: Session = Depends(get_db)):
     db.add(t)
     db.commit()
     db.refresh(t)
-    return t
+    data = TransaccionResponse.model_validate(t).model_dump(mode="json")
+    return success_response(data=data, message="Transacción creada")
 
 
-@router.put("/{transaccion_id}", response_model=TransaccionResponse)
+@router.put("/{transaccion_id}")
 def actualizar_transaccion(
     transaccion_id: UUID, dato: TransaccionUpdate, db: Session = Depends(get_db)
 ):
@@ -74,13 +80,14 @@ def actualizar_transaccion(
         .first()
     )
     if not t:
-        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+        raise NotFoundError("Transacción no encontrada")
     update = dato.model_dump(exclude_unset=True)
     for k, v in update.items():
         setattr(t, k, v)
     db.commit()
     db.refresh(t)
-    return t
+    data = TransaccionResponse.model_validate(t).model_dump(mode="json")
+    return success_response(data=data, message="Transacción actualizada")
 
 
 @router.delete("/{transaccion_id}", status_code=204)
@@ -91,7 +98,7 @@ def eliminar_transaccion(transaccion_id: UUID, db: Session = Depends(get_db)):
         .first()
     )
     if not t:
-        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+        raise NotFoundError("Transacción no encontrada")
     db.delete(t)
     db.commit()
     return None

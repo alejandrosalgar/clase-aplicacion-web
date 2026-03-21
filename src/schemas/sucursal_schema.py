@@ -1,14 +1,14 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SucursalBase(BaseModel):
-    nombre: str
-    direccion: str | None = None
-    ciudad: str | None = None
-    telefono: str | None = None
+    nombre: str = Field(..., min_length=1, max_length=200, description="Nombre de la sucursal")
+    direccion: str | None = Field(None, max_length=300)
+    ciudad: str | None = Field(None, max_length=100)
+    telefono: str | None = Field(None, max_length=20)
 
 
 class SucursalCreate(SucursalBase):
@@ -16,10 +16,10 @@ class SucursalCreate(SucursalBase):
 
 
 class SucursalUpdate(BaseModel):
-    nombre: str | None = None
-    direccion: str | None = None
-    ciudad: str | None = None
-    telefono: str | None = None
+    nombre: str | None = Field(None, min_length=1, max_length=200)
+    direccion: str | None = Field(None, max_length=300)
+    ciudad: str | None = Field(None, max_length=100)
+    telefono: str | None = Field(None, max_length=20)
     id_usuario_edita: UUID | None = None
 
 

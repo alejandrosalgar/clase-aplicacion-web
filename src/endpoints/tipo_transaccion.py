@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.core.exceptions import ConflictError, NotFoundError
+from src.core.responses import success_response
 from src.database.config import get_db
 from src.entities.tipo_transaccion import TipoTransaccion
 from src.schemas.tipo_transaccion_schema import (
@@ -14,12 +16,14 @@ from src.schemas.tipo_transaccion_schema import (
 router = APIRouter(prefix="/tipos-transaccion", tags=["tipos-transaccion"])
 
 
-@router.get("", response_model=list[TipoTransaccionResponse])
+@router.get("")
 def listar_tipos_transaccion(db: Session = Depends(get_db)):
-    return db.query(TipoTransaccion).all()
+    tipos = db.query(TipoTransaccion).all()
+    data = [TipoTransaccionResponse.model_validate(t).model_dump(mode="json") for t in tipos]
+    return success_response(data=data, message="Listado de tipos de transacción")
 
 
-@router.get("/{tipo_id}", response_model=TipoTransaccionResponse)
+@router.get("/{tipo_id}")
 def obtener_tipo_transaccion(tipo_id: UUID, db: Session = Depends(get_db)):
     tipo = (
         db.query(TipoTransaccion)
@@ -27,15 +31,16 @@ def obtener_tipo_transaccion(tipo_id: UUID, db: Session = Depends(get_db)):
         .first()
     )
     if not tipo:
-        raise HTTPException(status_code=404, detail="Tipo de transacción no encontrado")
-    return tipo
+        raise NotFoundError("Tipo de transacción no encontrado")
+    data = TipoTransaccionResponse.model_validate(tipo).model_dump(mode="json")
+    return success_response(data=data, message="Tipo de transacción obtenido")
 
 
-@router.post("", response_model=TipoTransaccionResponse, status_code=201)
+@router.post("", status_code=201)
 def crear_tipo_transaccion(dato: TipoTransaccionCreate, db: Session = Depends(get_db)):
     if db.query(TipoTransaccion).filter(TipoTransaccion.codigo == dato.codigo).first():
-        raise HTTPException(
-            status_code=400, detail="Ya existe un tipo de transacción con ese código"
+        raise ConflictError(
+            "Ya existe un tipo de transacción con ese código", status_code=400
         )
     tipo = TipoTransaccion(
         codigo=dato.codigo,
@@ -45,10 +50,11 @@ def crear_tipo_transaccion(dato: TipoTransaccionCreate, db: Session = Depends(ge
     db.add(tipo)
     db.commit()
     db.refresh(tipo)
-    return tipo
+    data = TipoTransaccionResponse.model_validate(tipo).model_dump(mode="json")
+    return success_response(data=data, message="Tipo de transacción creado")
 
 
-@router.put("/{tipo_id}", response_model=TipoTransaccionResponse)
+@router.put("/{tipo_id}")
 def actualizar_tipo_transaccion(
     tipo_id: UUID, dato: TipoTransaccionUpdate, db: Session = Depends(get_db)
 ):
@@ -58,7 +64,7 @@ def actualizar_tipo_transaccion(
         .first()
     )
     if not tipo:
-        raise HTTPException(status_code=404, detail="Tipo de transacción no encontrado")
+        raise NotFoundError("Tipo de transacción no encontrado")
     update = dato.model_dump(exclude_unset=True)
     if (
         "codigo" in update
@@ -69,12 +75,13 @@ def actualizar_tipo_transaccion(
         )
         .first()
     ):
-        raise HTTPException(status_code=400, detail="El código ya existe")
+        raise ConflictError("El código ya existe", status_code=400)
     for k, v in update.items():
         setattr(tipo, k, v)
     db.commit()
     db.refresh(tipo)
-    return tipo
+    data = TipoTransaccionResponse.model_validate(tipo).model_dump(mode="json")
+    return success_response(data=data, message="Tipo de transacción actualizado")
 
 
 @router.delete("/{tipo_id}", status_code=204)
@@ -85,7 +92,7 @@ def eliminar_tipo_transaccion(tipo_id: UUID, db: Session = Depends(get_db)):
         .first()
     )
     if not tipo:
-        raise HTTPException(status_code=404, detail="Tipo de transacción no encontrado")
+        raise NotFoundError("Tipo de transacción no encontrado")
     db.delete(tipo)
     db.commit()
     return None
