@@ -21,7 +21,10 @@ router = APIRouter(prefix="/transacciones", tags=["transacciones"])
 @router.get("")
 def listar_transacciones(db: Session = Depends(get_db)):
     transacciones = db.query(Transaccion).all()
-    data = [TransaccionResponse.model_validate(t).model_dump(mode="json") for t in transacciones]
+    data = [
+        TransaccionResponse.model_validate(t).model_dump(mode="json")
+        for t in transacciones
+    ]
     return success_response(data=data, message="Listado de transacciones")
 
 

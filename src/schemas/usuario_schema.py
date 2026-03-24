@@ -5,7 +5,9 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class UsuarioBase(BaseModel):
-    nombre: str = Field(..., min_length=1, max_length=200, description="Nombre completo")
+    nombre: str = Field(
+        ..., min_length=1, max_length=200, description="Nombre completo"
+    )
     nombre_usuario: str = Field(
         ...,
         min_length=3,
