@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.core.auth import get_current_user
 from src.core.exceptions import ConflictError, NotFoundError
 from src.core.responses import success_response
 from src.database.config import get_db
@@ -13,14 +14,14 @@ from src.utils.security import hash_password
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
-@router.get("")
+@router.get("", dependencies=[Depends(get_current_user)])
 def listar_usuarios(db: Session = Depends(get_db)):
     usuarios = db.query(Usuario).all()
     data = [UsuarioResponse.model_validate(u).model_dump(mode="json") for u in usuarios]
     return success_response(data=data, message="Listado de usuarios")
 
 
-@router.get("/{usuario_id}")
+@router.get("/{usuario_id}", dependencies=[Depends(get_current_user)])
 def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
     if not usuario:
@@ -51,7 +52,7 @@ def crear_usuario(dato: UsuarioCreate, db: Session = Depends(get_db)):
     return success_response(data=data, message="Usuario creado")
 
 
-@router.put("/{usuario_id}")
+@router.put("/{usuario_id}", dependencies=[Depends(get_current_user)])
 def actualizar_usuario(
     usuario_id: UUID, dato: UsuarioUpdate, db: Session = Depends(get_db)
 ):
@@ -69,7 +70,7 @@ def actualizar_usuario(
     return success_response(data=data, message="Usuario actualizado")
 
 
-@router.delete("/{usuario_id}", status_code=204)
+@router.delete("/{usuario_id}", status_code=204, dependencies=[Depends(get_current_user)])
 def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
     if not usuario:
