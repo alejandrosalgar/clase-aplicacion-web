@@ -25,6 +25,9 @@ from src.endpoints import (
     tipo_transaccion,
     transaccion,
     login,
+    prestamo,
+    pagos,
+    tipo_prestamo
 )
 
 # Importar modelos para que Base.metadata los conozca
@@ -34,6 +37,9 @@ import src.entities.tipo_cuenta  # noqa: F401
 import src.entities.cuenta  # noqa: F401
 import src.entities.tipo_transaccion  # noqa: F401
 import src.entities.transaccion  # noqa: F401
+import src.entities.prestamo
+import src.entities.pagos
+import src.entities.tipo_prestamo
 
 
 @asynccontextmanager
@@ -61,6 +67,9 @@ app.include_router(cuenta.router)
 app.include_router(tipo_transaccion.router)
 app.include_router(transaccion.router)
 app.include_router(login.router)
+app.include_router(prestamo.router)   
+app.include_router(pagos.router)              
+app.include_router(tipo_prestamo.router)     
 
 
 @app.get("/")

@@ -62,6 +62,6 @@ def eliminar_sucursal(id_prestamo: UUID, db: Session = Depends(get_db)):
     prestamo = db.query(Prestamo).filter(Prestamo.id_prestamo == id_prestamo).first()
     if not prestamo:
         raise NotFoundError("Prestamo no encontrado")
-    db.delete(Prestamo)
+    db.delete(prestamo)
     db.commit()
     return None
