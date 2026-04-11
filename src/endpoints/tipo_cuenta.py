@@ -35,7 +35,9 @@ def obtener_tipo_cuenta(tipo_id: UUID, db: Session = Depends(get_db)):
 @router.post("", status_code=201)
 def crear_tipo_cuenta(dato: TipoCuentaCreate, db: Session = Depends(get_db)):
     if db.query(TipoCuenta).filter(TipoCuenta.codigo == dato.codigo).first():
-        raise ConflictError("Ya existe un tipo de cuenta con ese código", status_code=400)
+        raise ConflictError(
+            "Ya existe un tipo de cuenta con ese código", status_code=400
+        )
     tipo = TipoCuenta(
         codigo=dato.codigo,
         nombre=dato.nombre,

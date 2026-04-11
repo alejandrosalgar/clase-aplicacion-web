@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class SucursalBase(BaseModel):
-    nombre: str = Field(..., min_length=1, max_length=200, description="Nombre de la sucursal")
+    nombre: str = Field(
+        ..., min_length=1, max_length=200, description="Nombre de la sucursal"
+    )
     direccion: str | None = Field(None, max_length=300)
     ciudad: str | None = Field(None, max_length=100)
     telefono: str | None = Field(None, max_length=20)

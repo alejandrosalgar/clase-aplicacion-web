@@ -19,7 +19,9 @@ router = APIRouter(prefix="/tipos-transaccion", tags=["tipos-transaccion"])
 @router.get("")
 def listar_tipos_transaccion(db: Session = Depends(get_db)):
     tipos = db.query(TipoTransaccion).all()
-    data = [TipoTransaccionResponse.model_validate(t).model_dump(mode="json") for t in tipos]
+    data = [
+        TipoTransaccionResponse.model_validate(t).model_dump(mode="json") for t in tipos
+    ]
     return success_response(data=data, message="Listado de tipos de transacción")
 
 

@@ -15,7 +15,9 @@ class ApiErrorDetail(BaseModel):
 
     code: str = Field(..., description="Código de error")
     message: str = Field(..., description="Mensaje legible")
-    details: dict | list | None = Field(None, description="Detalles adicionales (ej. errores de validación)")
+    details: dict | list | None = Field(
+        None, description="Detalles adicionales (ej. errores de validación)"
+    )
 
 
 class ApiErrorResponse(BaseModel):
@@ -38,7 +40,9 @@ def success_response(data: Any, message: str | None = None) -> dict[str, Any]:
     return {"success": True, "data": data, "message": message}
 
 
-def error_response(code: str, message: str, details: dict | list | None = None) -> dict[str, Any]:
+def error_response(
+    code: str, message: str, details: dict | list | None = None
+) -> dict[str, Any]:
     """Construye un diccionario de respuesta de error."""
     return {
         "success": False,
