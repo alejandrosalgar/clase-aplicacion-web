@@ -39,9 +39,9 @@ import src.entities.tipo_cuenta  # noqa: F401
 import src.entities.cuenta  # noqa: F401
 import src.entities.tipo_transaccion  # noqa: F401
 import src.entities.transaccion  # noqa: F401
-import src.entities.prestamo
-import src.entities.pagos
-import src.entities.tipo_prestamo
+import src.entities.prestamo # noqa: F401
+import src.entities.pagos # noqa: F401
+import src.entities.tipo_prestamo # noqa: F401
 
 
 @asynccontextmanager

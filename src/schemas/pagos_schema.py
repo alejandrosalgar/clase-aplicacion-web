@@ -15,21 +15,14 @@ class PagoBase(BaseModel):
     monto: Decimal = Field(..., gt=0, description="monto del pago")
     id_prestamo: UUID = Field(..., description="id del prestamo asociado")
     
-class PagoBase(BaseModel):
-    monto: Decimal = Field(..., gt=0)
-    id_prestamo: UUID
-
-
 class PagoCreate(PagoBase):
     id_usuario_creacion: UUID
     estado: EstadoPago = EstadoPago.PENDIENTE
-
 
 class PagoUpdate(BaseModel):
     monto: Decimal | None = Field(None, gt=0)
     estado: EstadoPago | None = None
     id_usuario_edita: UUID | None = None
-
 
 class PagoResponse(PagoBase):
     id_pago: UUID
