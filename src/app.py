@@ -7,7 +7,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
+from src.core.config import get_settings
 from src.core.exceptions import AppException
 from src.core.error_handlers import (
     app_exception_handler,
@@ -46,6 +48,15 @@ app = FastAPI(
     title="API Banco",
     description="API con FastAPI, SQLAlchemy y PostgreSQL - Usuarios, Sucursales, Cuentas, Transacciones. Incluye validación de datos, manejo de errores unificado y estructuras de respuesta estándar.",
     lifespan=lifespan,
+)
+
+_settings = get_settings()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_settings.cors_origins_list(),
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # Manejadores globales de excepciones (estructura de respuesta unificada)

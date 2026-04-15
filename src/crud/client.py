@@ -8,6 +8,20 @@ import httpx
 
 BASE_URL = "http://localhost:8000"
 
+_auth_token: str | None = None
+
+
+def set_auth_token(token: str | None) -> None:
+    """Guarda el JWT para enviarlo como Authorization: Bearer en las peticiones siguientes."""
+    global _auth_token
+    _auth_token = token
+
+
+def _auth_headers() -> dict[str, str]:
+    if _auth_token:
+        return {"Authorization": f"Bearer {_auth_token}"}
+    return {}
+
 
 def _unwrap(response_json: dict | list) -> dict | list:
     """Extrae el campo 'data' de la respuesta estándar de la API."""
@@ -21,15 +35,17 @@ def _unwrap(response_json: dict | list) -> dict | list:
 
 
 def _get(url: str, **kwargs) -> dict | list:
+    headers = {**_auth_headers(), **kwargs.pop("headers", {})}
     with httpx.Client(base_url=BASE_URL, timeout=30.0) as client:
-        r = client.get(url, **kwargs)
+        r = client.get(url, headers=headers, **kwargs)
         r.raise_for_status()
         return _unwrap(r.json())
 
 
 def _post(url: str, json: dict, **kwargs) -> dict:
+    headers = {**_auth_headers(), **kwargs.pop("headers", {})}
     with httpx.Client(base_url=BASE_URL, timeout=30.0) as client:
-        r = client.post(url, json=json, **kwargs)
+        r = client.post(url, json=json, headers=headers, **kwargs)
         r.raise_for_status()
         if r.status_code == 204:
             return {}
@@ -37,8 +53,9 @@ def _post(url: str, json: dict, **kwargs) -> dict:
 
 
 def _put(url: str, json: dict, **kwargs) -> dict:
+    headers = {**_auth_headers(), **kwargs.pop("headers", {})}
     with httpx.Client(base_url=BASE_URL, timeout=30.0) as client:
-        r = client.put(url, json=json, **kwargs)
+        r = client.put(url, json=json, headers=headers, **kwargs)
         r.raise_for_status()
         if r.status_code == 204:
             return {}
@@ -46,6 +63,7 @@ def _put(url: str, json: dict, **kwargs) -> dict:
 
 
 def _delete(url: str, **kwargs) -> None:
+    headers = {**_auth_headers(), **kwargs.pop("headers", {})}
     with httpx.Client(base_url=BASE_URL, timeout=30.0) as client:
-        r = client.delete(url, **kwargs)
+        r = client.delete(url, headers=headers, **kwargs)
         r.raise_for_status()

@@ -31,14 +31,76 @@ Se continúa con el mismo proyecto de la entrega anterior, igual para todo el se
 
 \section{Objetivos de la entrega}
 
-A continuación se detallan los requisitos que deben cumplir en esta entrega.
+A continuación se detallan los requisitos que deben cumplir en esta entrega. Entre ellos figuran de forma explícita la integración del \textbf{pipeline con la base de datos}, la carpeta \textbf{\texttt{core}}, la autenticación con \textbf{JWT} y la configuración de \textbf{CORS}.
 
 \subsection{Pipeline (CI/CD) y archivo YML}
 
 \begin{itemize}[leftmargin=*]
   \item Se debe implementar un \textbf{pipeline} cuyo archivo YML incluya:
   \begin{itemize}
-    \item \textbf{Despliegue o sincronización con la base de datos} (crear/actualizar esquema y, si aplica, datos iniciales).
+    \item \textbf{Integración con la base de datos:} despliegue o sincronización con la BD (crear/actualizar esquema mediante migraciones o mecanismo equivalente y, si aplica, ejecución del seeder o datos iniciales), de modo que el CI refleje el estado del esquema y los datos de prueba o iniciales.
+    \item \textbf{Otras acciones a elección del estudiante}, por ejemplo:
+    \begin{itemize}
+      \item Lint y formato de código (p. ej. Ruff, flake8, black).
+      \item Ejecución de pruebas (p. ej. pytest).
+      \item Verificación de vulnerabilidades en dependencias (p. ej. pip-audit, safety).
+      \item Build de imagen Docker.
+      \item Despliegue a un entorno (staging/producción).
+      \item Cualquier otra acción coherente con el proyecto que el estudiante justifique.
+    \end{itemize}
+  \end{itemize}
+  \item El pipeline debe ejecutarse con \textbf{merge (o push) en la rama \texttt{dev}}, y \textbf{no} en las ramas \texttt{qa} ni \texttt{prod}.
+\end{itemize}
+
+\subsection{Base de datos: migración y seeder}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Seeder:} se debe crear un \textbf{seeder} que inserte datos iniciales en la base de datos (catálogos, usuario por defecto, etc.), de forma idempotente cuando sea posible.
+  \item \textbf{Función de actualización de la BD:} además de crear las tablas desde el ORM (por ejemplo \texttt{create\_all}), se debe tener un mecanismo para \textbf{actualizar} el esquema de la base de datos (nuevas columnas, índices, migraciones), no solo la creación inicial.
+  \item Tanto el \textbf{seeder} como la \textbf{actualización de la BD} deben estar integrados en el pipeline (archivo YML), de modo que en el CI se ejecuten la creación/actualización del esquema y, si aplica, el seed.
+\end{itemize}
+
+\subsection{Carpeta \texttt{core} y manejo de errores}\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{framed}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+\definecolor{boxgray}{RGB}{240,240,240}
+\newenvironment{enunciado}{\begin{leftbar}\noindent\textbf{Enunciado:}\par\vspace{0.3em}}{\end{leftbar}}
+
+\title{Enunciado de examen \\ Aplicación y Servicios Web}
+\author{Curso 2026-1}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\vspace{1em}
+
+\begin{enunciado}
+Se continúa con el mismo proyecto de la entrega anterior, igual para todo el semestre. La entrega se realiza en \textbf{los mismos grupos de trabajo} ya definidos.
+\end{enunciado}
+
+\section{Objetivos de la entrega}
+
+A continuación se detallan los requisitos que deben cumplir en esta entrega. Entre ellos figuran de forma explícita la integración del \textbf{pipeline con la base de datos}, la carpeta \textbf{\texttt{core}}, la autenticación con \textbf{JWT} y la configuración de \textbf{CORS}.
+
+\subsection{Pipeline (CI/CD) y archivo YML}
+
+\begin{itemize}[leftmargin=*]
+  \item Se debe implementar un \textbf{pipeline} cuyo archivo YML incluya:
+  \begin{itemize}
+    \item \textbf{Integración con la base de datos:} despliegue o sincronización con la BD (crear/actualizar esquema mediante migraciones o mecanismo equivalente y, si aplica, ejecución del seeder o datos iniciales), de modo que el CI refleje el estado del esquema y los datos de prueba o iniciales.
     \item \textbf{Otras acciones a elección del estudiante}, por ejemplo:
     \begin{itemize}
       \item Lint y formato de código (p. ej. Ruff, flake8, black).
@@ -67,6 +129,118 @@ A continuación se detallan los requisitos que deben cumplir en esta entrega.
   \item La API debe apoyarse en esta capa \texttt{core} para devolver respuestas de error consistentes (404, 400, 409, etc.) en lugar de depender únicamente de excepciones genéricas del framework.
 \end{itemize}
 
+\subsection{Autenticación JWT y CORS}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{JWT:} la API debe implementar autenticación basada en \textbf{tokens JWT} (emisión tras un login válido, validación en rutas protegidas, uso de cabecera \texttt{Authorization: Bearer}, buenas prácticas en la clave secreta y en la expiración del token).
+  \item \textbf{CORS:} debe configurarse \textbf{CORS} de forma adecuada para permitir el consumo de la API desde orígenes de frontend (orígenes explícitos cuando se usen credenciales, métodos y cabeceras necesarias, sin abrir de más en producción).
+  \item Se recomienda documentar en el repositorio (p. ej\documentclass[11pt,a4paper]{article}
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage[spanish]{babel}
+  \usepackage{geometry}
+  \usepackage{enumitem}
+  \usepackage{titlesec}
+  \usepackage{xcolor}
+  \usepackage{framed}
+  \usepackage{hyperref}
+  \geometry{margin=2.5cm}
+  
+  \titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+  \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+  
+  \definecolor{boxgray}{RGB}{240,240,240}
+  \newenvironment{enunciado}{\begin{leftbar}\noindent\textbf{Enunciado:}\par\vspace{0.3em}}{\end{leftbar}}
+  
+  \title{Enunciado de examen \\ Aplicación y Servicios Web}
+  \author{Curso 2026-1}
+  \date{}
+  
+  \begin{document}
+  \maketitle
+  \thispagestyle{empty}
+  \vspace{1em}
+  
+  \begin{enunciado}
+  Se continúa con el mismo proyecto de la entrega anterior, igual para todo el semestre. La entrega se realiza en \textbf{los mismos grupos de trabajo} ya definidos.
+  \end{enunciado}
+  
+  \section{Objetivos de la entrega}
+  
+  A continuación se detallan los requisitos que deben cumplir en esta entrega. Entre ellos figuran de forma explícita la integración del \textbf{pipeline con la base de datos}, la carpeta \textbf{\texttt{core}}, la autenticación con \textbf{JWT} y la configuración de \textbf{CORS}.
+  
+  \subsection{Pipeline (CI/CD) y archivo YML}
+  
+  \begin{itemize}[leftmargin=*]
+    \item Se debe implementar un \textbf{pipeline} cuyo archivo YML incluya:
+    \begin{itemize}
+      \item \textbf{Integración con la base de datos:} despliegue o sincronización con la BD (crear/actualizar esquema mediante migraciones o mecanismo equivalente y, si aplica, ejecución del seeder o datos iniciales), de modo que el CI refleje el estado del esquema y los datos de prueba o iniciales.
+      \item \textbf{Otras acciones a elección del estudiante}, por ejemplo:
+      \begin{itemize}
+        \item Lint y formato de código (p. ej. Ruff, flake8, black).
+        \item Ejecución de pruebas (p. ej. pytest).
+        \item Verificación de vulnerabilidades en dependencias (p. ej. pip-audit, safety).
+        \item Build de imagen Docker.
+        \item Despliegue a un entorno (staging/producción).
+        \item Cualquier otra acción coherente con el proyecto que el estudiante justifique.
+      \end{itemize}
+    \end{itemize}
+    \item El pipeline debe ejecutarse con \textbf{merge (o push) en la rama \texttt{dev}}, y \textbf{no} en las ramas \texttt{qa} ni \texttt{prod}.
+  \end{itemize}
+  
+  \subsection{Base de datos: migración y seeder}
+  
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{Seeder:} se debe crear un \textbf{seeder} que inserte datos iniciales en la base de datos (catálogos, usuario por defecto, etc.), de forma idempotente cuando sea posible.
+    \item \textbf{Función de actualización de la BD:} además de crear las tablas desde el ORM (por ejemplo \texttt{create\_all}), se debe tener un mecanismo para \textbf{actualizar} el esquema de la base de datos (nuevas columnas, índices, migraciones), no solo la creación inicial.
+    \item Tanto el \textbf{seeder} como la \textbf{actualización de la BD} deben estar integrados en el pipeline (archivo YML), de modo que en el CI se ejecuten la creación/actualización del esquema y, si aplica, el seed.
+  \end{itemize}
+  
+  \subsection{Carpeta \texttt{core} y manejo de errores}
+  
+  \begin{itemize}[leftmargin=*]
+    \item Se debe utilizar una carpeta \textbf{\texttt{core}} en el proyecto con el manejo centralizado de \textbf{errores y excepciones} (por ejemplo: excepciones personalizadas, manejadores globales en FastAPI, respuestas de error homogéneas).
+    \item La API debe apoyarse en esta capa \texttt{core} para devolver respuestas de error consistentes (404, 400, 409, etc.) en lugar de depender únicamente de excepciones genéricas del framework.
+  \end{itemize}
+  
+  \subsection{Autenticación JWT y CORS}
+  
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{JWT:} la API debe implementar autenticación basada en \textbf{tokens JWT} (emisión tras un login válido, validación en rutas protegidas, uso de cabecera \texttt{Authorization: Bearer}, buenas prácticas en la clave secreta y en la expiración del token).
+    \item \textbf{CORS:} debe configurarse \textbf{CORS} de forma adecuada para permitir el consumo de la API desde orígenes de frontend (orígenes explícitos cuando se usen credenciales, métodos y cabeceras necesarias, sin abrir de más en producción).
+    \item Se recomienda documentar en el repositorio (p. ej. en el README o en \texttt{docs/}) el uso del JWT y la política CORS adoptada.
+  \end{itemize}
+  
+  \subsection{Evaluación de Pull Requests}
+  
+  \begin{itemize}[leftmargin=*]
+    \item Se seguirá evaluando los \textbf{Pull Requests} desde las ramas de trabajo (por ejemplo \texttt{feat/*}) hacia la rama de integración \textbf{\texttt{dev-qa-prod}} (o la rama que el docente indique para integración).
+  \end{itemize}
+  
+  \subsection{Video y README}
+  
+  \begin{itemize}[leftmargin=*]
+    \item Se debe incluir un \textbf{video} enlazado o embebido en el \textbf{README} del repositorio.
+    \item En el video debe evidenciarse:
+    \begin{itemize}
+      \item La ejecución del \textbf{pipeline} (paso a paso en GitHub Actions o similar).
+      \item La \textbf{creación de los nuevos campos/tablas en la base de datos} (por ejemplo: ejecución de migraciones, seeder, o captura del esquema actualizado en la BD).
+    \end{itemize}
+  \end{itemize}
+  
+  \subsection{Fecha límite}
+  
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{Plazo de entrega:} hasta el \textbf{11 de abril de 2026}.
+  \end{itemize}
+  
+  \vspace{1.5em}
+  \noindent\textit{Resumen: mismos grupos de trabajo; mismo proyecto todo el semestre; pipeline YML con integración a la base de datos (esquema/migraciones y seeder en el CI) y otras acciones a elección; carpeta \texttt{core} con errores y excepciones; autenticación JWT y configuración CORS; pipeline disparado en \texttt{dev}; PRs desde \texttt{feat} hacia \texttt{dev-qa-prod}; video en el README mostrando el pipeline y la creación de campos en la BD; entrega hasta el 11 de abril de 2026.}
+  
+  \end{document}
+  . en el README o en \texttt{docs/}) el uso del JWT y la política CORS adoptada.
+\end{itemize}
+
 \subsection{Evaluación de Pull Requests}
 
 \begin{itemize}[leftmargin=*]
@@ -87,10 +261,52 @@ A continuación se detallan los requisitos que deben cumplir en esta entrega.
 \subsection{Fecha límite}
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Plazo de entrega:} hasta el \textbf{sábado 28 de marzo}.
+  \item \textbf{Plazo de entrega:} hasta el \textbf{11 de abril de 2026}.
 \end{itemize}
 
 \vspace{1.5em}
-\noindent\textit{Resumen: mismos grupos de trabajo; mismo proyecto todo el semestre; pipeline YML con despliegue/sincronización a BD y otras acciones a elección; seeder y función de actualización de BD integrados en el YML; carpeta \texttt{core} con errores y excepciones; pipeline disparado en \texttt{dev}; PRs desde \texttt{feat} hacia \texttt{dev-qa-prod}; video en el README mostrando el pipeline y la creación de campos en la BD; entrega hasta el sábado 28 de marzo.}
+\noindent\textit{Resumen: mismos grupos de trabajo; mismo proyecto todo el semestre; pipeline YML con integración a la base de datos (esquema/migraciones y seeder en el CI) y otras acciones a elección; carpeta \texttt{core} con errores y excepciones; autenticación JWT y configuración CORS; pipeline disparado en \texttt{dev}; PRs desde \texttt{feat} hacia \texttt{dev-qa-prod}; video en el README mostrando el pipeline y la creación de campos en la BD; entrega hasta el 11 de abril de 2026.}
+
+\end{document}
+
+
+\begin{itemize}[leftmargin=*]
+  \item Se debe utilizar una carpeta \textbf{\texttt{core}} en el proyecto con el manejo centralizado de \textbf{errores y excepciones} (por ejemplo: excepciones personalizadas, manejadores globales en FastAPI, respuestas de error homogéneas).
+  \item La API debe apoyarse en esta capa \texttt{core} para devolver respuestas de error consistentes (404, 400, 409, etc.) en lugar de depender únicamente de excepciones genéricas del framework.
+\end{itemize}
+
+\subsection{Autenticación JWT y CORS}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{JWT:} la API debe implementar autenticación basada en \textbf{tokens JWT} (emisión tras un login válido, validación en rutas protegidas, uso de cabecera \texttt{Authorization: Bearer}, buenas prácticas en la clave secreta y en la expiración del token).
+  \item \textbf{CORS:} debe configurarse \textbf{CORS} de forma adecuada para permitir el consumo de la API desde orígenes de frontend (orígenes explícitos cuando se usen credenciales, métodos y cabeceras necesarias, sin abrir de más en producción).
+  \item Se recomienda documentar en el repositorio (p. ej. en el README o en \texttt{docs/}) el uso del JWT y la política CORS adoptada.
+\end{itemize}
+
+\subsection{Evaluación de Pull Requests}
+
+\begin{itemize}[leftmargin=*]
+  \item Se seguirá evaluando los \textbf{Pull Requests} desde las ramas de trabajo (por ejemplo \texttt{feat/*}) hacia la rama de integración \textbf{\texttt{dev-qa-prod}} (o la rama que el docente indique para integración).
+\end{itemize}
+
+\subsection{Video y README}
+
+\begin{itemize}[leftmargin=*]
+  \item Se debe incluir un \textbf{video} enlazado o embebido en el \textbf{README} del repositorio.
+  \item En el video debe evidenciarse:
+  \begin{itemize}
+    \item La ejecución del \textbf{pipeline} (paso a paso en GitHub Actions o similar).
+    \item La \textbf{creación de los nuevos campos/tablas en la base de datos} (por ejemplo: ejecución de migraciones, seeder, o captura del esquema actualizado en la BD).
+  \end{itemize}
+\end{itemize}
+
+\subsection{Fecha límite}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Plazo de entrega:} hasta el \textbf{11 de abril de 2026}.
+\end{itemize}
+
+\vspace{1.5em}
+\noindent\textit{Resumen: mismos grupos de trabajo; mismo proyecto todo el semestre; pipeline YML con integración a la base de datos (esquema/migraciones y seeder en el CI) y otras acciones a elección; carpeta \texttt{core} con errores y excepciones; autenticación JWT y configuración CORS; pipeline disparado en \texttt{dev}; PRs desde \texttt{feat} hacia \texttt{dev-qa-prod}; video en el README mostrando el pipeline y la creación de campos en la BD; entrega hasta el 11 de abril de 2026.}
 
 \end{document}
