@@ -20,8 +20,7 @@ router = APIRouter(prefix="/tipo_prestamo", tags=["tipo_prestamo"])
 def listar_tipos_prestamo(db: Session = Depends(get_db)):
     tipos = db.query(TipoPrestamo).all()
     data = [
-        TipoPrestamoResponse.model_validate(t).model_dump(mode="json")
-        for t in tipos
+        TipoPrestamoResponse.model_validate(t).model_dump(mode="json") for t in tipos
     ]
     return success_response(data=data, message="Lista de tipos de prestamo")
 

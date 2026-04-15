@@ -10,11 +10,9 @@ from src.database.config import Base
 class Pago(Base):
     __tablename__ = "pago"
 
-    id_pago = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    
-    id_prestamo = Column(
-        UUID(as_uuid=True), ForeignKey("prestamo.id_prestamo"))
+    id_pago = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    id_prestamo = Column(UUID(as_uuid=True), ForeignKey("prestamo.id_prestamo"))
 
     monto = Column(Numeric(10, 2), nullable=False)
 
@@ -23,7 +21,7 @@ class Pago(Base):
     estado = Column(String(50), nullable=False)
 
     id_usuario_creacion = Column(UUID(as_uuid=True), nullable=False)
-    
+
     id_usuario_edita = Column(UUID(as_uuid=True), nullable=True)
 
     # auditoría
