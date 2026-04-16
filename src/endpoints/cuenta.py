@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.core.auth import get_current_user
 from src.core.exceptions import BadRequestError, ConflictError, NotFoundError
 from src.core.responses import success_response
 from src.database.config import get_db
@@ -12,7 +13,11 @@ from src.entities.tipo_cuenta import TipoCuenta
 from src.entities.usuarios import Usuario
 from src.schemas.cuenta_schema import CuentaCreate, CuentaUpdate, CuentaResponse
 
-router = APIRouter(prefix="/cuentas", tags=["cuentas"])
+router = APIRouter(
+    prefix="/cuentas",
+    tags=["cuentas"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("")
