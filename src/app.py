@@ -5,10 +5,11 @@ Aplicación FastAPI. Ejecutar con:
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.core.config import get_settings
 from src.core.exceptions import AppException
 from src.core.error_handlers import (
     app_exception_handler,
