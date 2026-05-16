@@ -3,6 +3,7 @@ Cliente HTTP para conectar con los endpoints de la API FastAPI.
 Adaptado a la estructura de respuesta estándar: { "success", "data", "message" }.
 En caso de error, la API devuelve { "success": false, "error": { "code", "message", "details" } }.
 """
+
 import httpx
 
 BASE_URL = "http://localhost:8000"
@@ -24,7 +25,11 @@ def _auth_headers() -> dict[str, str]:
 
 def _unwrap(response_json: dict | list) -> dict | list:
     """Extrae el campo 'data' de la respuesta estándar de la API."""
-    if isinstance(response_json, dict) and response_json.get("success") is True and "data" in response_json:
+    if (
+        isinstance(response_json, dict)
+        and response_json.get("success") is True
+        and "data" in response_json
+    ):
         return response_json["data"]
     return response_json
 

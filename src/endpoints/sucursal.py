@@ -20,7 +20,9 @@ router = APIRouter(
 @router.get("")
 def listar_sucursales(db: Session = Depends(get_db)):
     sucursales = db.query(Sucursal).all()
-    data = [SucursalResponse.model_validate(s).model_dump(mode="json") for s in sucursales]
+    data = [
+        SucursalResponse.model_validate(s).model_dump(mode="json") for s in sucursales
+    ]
     return success_response(data=data, message="Listado de sucursales")
 
 

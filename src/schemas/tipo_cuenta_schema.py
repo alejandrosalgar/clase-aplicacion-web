@@ -5,8 +5,12 @@ from pydantic import BaseModel, Field
 
 
 class TipoCuentaBase(BaseModel):
-    codigo: str = Field(..., min_length=1, max_length=20, description="Código único del tipo")
-    nombre: str = Field(..., min_length=1, max_length=100, description="Nombre del tipo de cuenta")
+    codigo: str = Field(
+        ..., min_length=1, max_length=20, description="Código único del tipo"
+    )
+    nombre: str = Field(
+        ..., min_length=1, max_length=100, description="Nombre del tipo de cuenta"
+    )
 
 
 class TipoCuentaCreate(TipoCuentaBase):

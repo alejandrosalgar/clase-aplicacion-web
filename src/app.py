@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
 
 from src.core.config import get_settings
 from src.core.exceptions import AppException
@@ -51,27 +50,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-_settings = get_settings()
+origins = [
+    "http://localhost:4200",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_settings.cors_origins_list(),
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
-
-@app.middleware("http")
-async def security_headers_middleware(request: Request, call_next):
-    response: Response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-    # CSP básica para API JSON; evita carga de contenido activo inesperado.
-    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
-    return response
-
 
 # Manejadores globales de excepciones (estructura de respuesta unificada)
 app.add_exception_handler(AppException, app_exception_handler)
