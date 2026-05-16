@@ -25,6 +25,9 @@ import src.entities.tipo_cuenta  # noqa: F401
 import src.entities.cuenta  # noqa: F401
 import src.entities.tipo_transaccion  # noqa: F401
 import src.entities.transaccion  # noqa: F401
+import src.entities.prestamo
+import src.entities.pagos
+import src.entities.tipo_prestamo
 from src.database.config import engine, create_tables
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"

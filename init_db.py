@@ -20,8 +20,9 @@ import src.entities.usuarios  # noqa: F401 - registrar modelo
 import src.entities.sucursal  # noqa: F401
 import src.entities.tipo_cuenta  # noqa: F401
 import src.entities.cuenta  # noqa: F401
-import src.entities.tipo_transaccion  # noqa: F401
+import src.entities.tipo_transaccion  # noqa: F401s
 import src.entities.transaccion  # noqa: F401
+import src.entities.factura
 from src.database.config import create_tables
 
 if __name__ == "__main__":
