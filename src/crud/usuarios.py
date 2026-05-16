@@ -1,6 +1,7 @@
 """
 CRUD de usuarios: conexión con los endpoints /usuarios.
 """
+
 from src.crud.client import _delete, _get, _post, _put
 
 
@@ -16,17 +17,19 @@ def crear_usuario(
     nombre: str,
     nombre_usuario: str,
     email: str,
+    telefono: str,
     contraseña: str,
-    telefono: str | None = None,
+    rol: str,
     activo: bool = True,
 ) -> dict:
     payload = {
         "nombre": nombre,
         "nombre_usuario": nombre_usuario,
         "email": email,
-        "contraseña": contraseña,
         "telefono": telefono,
         "activo": activo,
+        "contraseña": contraseña,
+        "rol": rol,
     }
     return _post("/usuarios", json=payload)
 

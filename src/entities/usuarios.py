@@ -8,14 +8,18 @@ from src.database.config import Base
 
 
 class Usuario(Base):
-    __tablename__ = "tbl_usuarios"
+    __tablename__ = "usuario"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id_usuario = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+    )
     nombre = Column(String(100), nullable=False)
     nombre_usuario = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(150), unique=True, index=True, nullable=False)
     contraseña_hash = Column(String(255), nullable=False)
     telefono = Column(String(20), nullable=True)
+    rol = Column(String(20), nullable=False)
     activo = Column(Boolean, default=True)
+
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())

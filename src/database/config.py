@@ -1,8 +1,11 @@
 """
-Configuración de la base de datos PostgreSQL con Neon
+Configuración de base de datos.
+- Producción/CI: usa DATABASE_URL (PostgreSQL).
+- Desarrollo local: usa SQLite si DATABASE_URL no está definida.
 """
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -13,21 +16,27 @@ from sqlalchemy.orm.session import Session
 # Cargar variables de entorno
 load_dotenv()
 
-# Configuración de la base de datos Neon PostgreSQL
-# Obtener la URL completa de conexión desde las variables de entorno
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 if not DATABASE_URL:
-    raise ValueError("Se requiere DATABASE_URL en las variables de entorno")
+    db_path = Path(__file__).resolve().parents[2] / "dev.db"
+    DATABASE_URL = f"sqlite:///{db_path.as_posix()}"
+
+# SSL: "require" para Neon en producción; "disable" para PostgreSQL local/CI
+_ssl_mode = os.getenv("SSL_MODE", "require")
+
+_engine_kwargs = {
+    "echo": False,  # Cambiar a True para ver consultas SQL
+    "pool_pre_ping": True,  # Verificar conexión antes de usar
+    "pool_recycle": 300,  # Reciclar conexiones cada 5 minutos
+}
+
+if DATABASE_URL.startswith("sqlite"):
+    _engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    _engine_kwargs["connect_args"] = {"sslmode": _ssl_mode}
 
 # Crear el motor de SQLAlchemy
-engine = create_engine(
-    DATABASE_URL,
-    echo=False,  # Cambiar a True para ver consultas SQL
-    pool_pre_ping=True,  # Verificar conexión antes de usar
-    pool_recycle=300,  # Reciclar conexiones cada 5 minutos
-    connect_args={"sslmode": "require"},  # Requerir SSL para Neon
-)
+engine = create_engine(DATABASE_URL, **_engine_kwargs)
 
 # Crear la sesión
 SessionLocal = sessionmaker[Session](autocommit=False, autoflush=False, bind=engine)
