@@ -11,13 +11,10 @@ class EstadoPago(str, Enum):
     PAGADO = "PAGADO"
     FALLIDO = "FALLIDO"
 
+
 class PagoBase(BaseModel):
     monto: Decimal = Field(..., gt=0, description="monto del pago")
     id_prestamo: UUID = Field(..., description="id del prestamo asociado")
-    
-class PagoBase(BaseModel):
-    monto: Decimal = Field(..., gt=0)
-    id_prestamo: UUID
 
 
 class PagoCreate(PagoBase):

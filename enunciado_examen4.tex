@@ -1,0 +1,96 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{framed}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+\definecolor{boxgray}{RGB}{240,240,240}
+\newenvironment{enunciado}{\begin{leftbar}\noindent\textbf{Enunciado:}\par\vspace{0.3em}}{\end{leftbar}}
+
+\title{Examen 4 --- Integración aplicación web \\ API REST (backend) y cliente web (frontend)}
+\author{Curso 2026-1 \\ Aplicación y Servicios Web}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\vspace{1em}
+
+\begin{enunciado}
+Esta entrega integra el \textbf{backend} desarrollado en el curso (API REST con FastAPI, SQLAlchemy y PostgreSQL) con un \textbf{frontend} nuevo: aplicación web que consume la API. La evaluación considera el trabajo en \textbf{los mismos grupos} definidos para el semestre, salvo indicación contraria del docente.
+\end{enunciado}
+
+\section{Alcance del trabajo}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Backend:} se parte del proyecto de la API tipo ``banco'' (usuarios, sucursales, tipos de cuenta, cuentas, tipos de transacción, transacciones, autenticación JWT y CORS), manteniendo buenas prácticas ya vistas (carpeta \texttt{core}, validación, respuestas homogéneas, etc.).
+  \item \textbf{Ampliación del dominio:} el modelo de datos persistido en PostgreSQL debe incluir \textbf{como mínimo ocho entidades} (tablas ORM en \texttt{entities/}, con relaciones coherentes). Si el modelo base tiene menos de ocho tablas de negocio, el grupo debe \textbf{añadir las que falten} (por ejemplo: catálogos adicionales, auditoría, productos o entidades alineadas al caso de uso), con migración o mecanismo de actualización de esquema y datos de prueba si aplica.
+  \item \textbf{Frontend:} aplicación web que permita al menos \textbf{inicio de sesión} contra el endpoint de login de la API, navegación tras autenticación y \textbf{operaciones CRUD o consultas} representativas sobre \textbf{varias} de las entidades del dominio (no basta con una sola pantalla estática).
+\end{itemize}
+
+\section{Requisitos técnicos obligatorios}
+
+\subsection{CORS y consumo desde el navegador}
+
+\begin{itemize}[leftmargin=*]
+  \item El backend debe tener configurado \textbf{CORS} de forma explícita para el origen (u orígenes) del frontend en desarrollo y, si aplica, el de despliegue. No debe abrirse indiscriminadamente a cualquier origen en un escenario real de producción; debe documentarse en el README del backend o en \texttt{docs/} qué variable(s) de entorno controlan los orígenes permitidos.
+\end{itemize}
+
+\subsection{Autenticación (login)}
+
+\begin{itemize}[leftmargin=*]
+  \item El flujo \textbf{login $\rightarrow$ token JWT $\rightarrow$ rutas protegidas} debe estar operativo en el \textbf{backend} y ser utilizado por el \textbf{frontend} (almacenamiento seguro del token en cliente, envío en cabecera \texttt{Authorization: Bearer}, cierre de sesión).
+  \item Las acciones del frontend que modifiquen datos o accedan a información restringida deben hacerlo \textbf{con usuario autenticado}, de forma coherente con los roles o reglas que defina el grupo.
+\end{itemize}
+
+\subsection{Repositorios y forma de entrega}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Repositorio del backend:} se continúa con el repositorio ya existente del curso para la API (el mismo que venían usando). Allí debe poder revisarse el código de la API, entidades, migraciones/actualización de BD, CORS, JWT y documentación pertinente.
+  \item \textbf{Repositorio del frontend (entrega separada):} se debe crear y entregar un \textbf{repositorio independiente} que contenga \textbf{solo} el código del cliente web (por ejemplo el proyecto Angular de la carpeta de práctica), sin mezclar en ese repo el código fuente del backend.
+  \item En el \textbf{README del repositorio del frontend} debe incluirse de forma visible:
+  \begin{itemize}
+    \item \textbf{Enlace al video explicativo} (por ejemplo YouTube, Drive o plataforma acordada con el docente). El enlace puede ir como URL en una sección titulada ``Video'' o similar.
+    \item Instrucciones mínimas para \textbf{instalar dependencias}, \textbf{configurar la URL base de la API} (entorno o archivo de configuración) y \textbf{ejecutar} la aplicación en local.
+  \end{itemize}
+\end{itemize}
+
+\section{Contenido del video explicativo}
+
+En el video (duración razonable, p.\,ej.\ entre 8 y 15 minutos, salvo indicación del docente) debe mostrarse de forma clara:
+
+\begin{itemize}[leftmargin=*]
+  \item Arranque del \textbf{backend} y del \textbf{frontend}, y demostración del \textbf{login}.
+  \item Recorrido por al menos \textbf{dos funcionalidades} que consulten o modifiquen datos a través de la API (distintas áreas del dominio).
+  \item Mención o vista rápida de que la API acepta peticiones desde el origen del front (\textbf{CORS}) y uso del token en las peticiones.
+\end{itemize}
+
+\section{Fecha límite}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Entrega:} hasta el \textbf{sábado 9 de abril de 2026}, a la hora límite que indique el docente en el curso (si no se indica otra cosa, hasta las \textbf{23:59} hora local).\footnote{En el calendario gregoriano de 2026, el día 9 de abril es jueves. Ajuste la redacción o el año si el programa académico exige estrictamente que el plazo cierre en sábado.}
+\end{itemize}
+
+\section{Criterios orientadores de evaluación}
+
+\begin{itemize}[leftmargin=*]
+  \item Cumplimiento del mínimo de \textbf{ocho entidades}, coherencia del modelo y de la API.
+  \item \textbf{CORS} y \textbf{login/JWT} funcionando de extremo a extremo.
+  \item Calidad del \textbf{frontend} (usabilidad, manejo de errores básico, rutas/guards si aplica).
+  \item Claridad del \textbf{README del repo del frontend} y utilidad del \textbf{video}.
+  \item Repositorios correctamente separados: \textbf{solo front} en el repositorio entregado como cliente web.
+\end{itemize}
+
+\vspace{1.5em}
+\noindent\textit{Resumen: backend existente ampliado a al menos 8 entidades; CORS y JWT; frontend en repo aparte con README que incluye enlace al video; integración login y uso de la API; entrega hasta el 9 de abril de 2026.}
+
+\end{document}

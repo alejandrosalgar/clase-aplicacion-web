@@ -70,7 +70,9 @@ def actualizar_usuario(
     return success_response(data=data, message="Usuario actualizado")
 
 
-@router.delete("/{usuario_id}", status_code=204, dependencies=[Depends(get_current_user)])
+@router.delete(
+    "/{usuario_id}", status_code=204, dependencies=[Depends(get_current_user)]
+)
 def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
     if not usuario:

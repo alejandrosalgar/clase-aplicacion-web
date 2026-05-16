@@ -44,9 +44,7 @@ def crear_pago(dato: PagoCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{id_pago}")
-def actualizar_pago(
-    id_pago: UUID, dato: PagoUpdate, db: Session = Depends(get_db)
-):
+def actualizar_pago(id_pago: UUID, dato: PagoUpdate, db: Session = Depends(get_db)):
     pago = db.query(Pago).filter(Pago.id_pago == id_pago).first()
     if not pago:
         raise NotFoundError("Pago no encontrado")

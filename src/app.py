@@ -5,7 +5,7 @@ Aplicación FastAPI. Ejecutar con:
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -29,7 +29,7 @@ from src.endpoints import (
     login,
     prestamo,
     pagos,
-    tipo_prestamo
+    tipo_prestamo,
 )
 
 # Importar modelos para que Base.metadata los conozca
@@ -39,9 +39,9 @@ import src.entities.tipo_cuenta  # noqa: F401
 import src.entities.cuenta  # noqa: F401
 import src.entities.tipo_transaccion  # noqa: F401
 import src.entities.transaccion  # noqa: F401
-import src.entities.prestamo
-import src.entities.pagos
-import src.entities.tipo_prestamo
+import src.entities.prestamo  # noqa: F401
+import src.entities.pagos  # noqa: F401
+import src.entities.tipo_prestamo  # noqa: F401
 
 
 @asynccontextmanager
@@ -78,9 +78,9 @@ app.include_router(cuenta.router)
 app.include_router(tipo_transaccion.router)
 app.include_router(transaccion.router)
 app.include_router(login.router)
-app.include_router(prestamo.router)   
-app.include_router(pagos.router)              
-app.include_router(tipo_prestamo.router)     
+app.include_router(prestamo.router)
+app.include_router(pagos.router)
+app.include_router(tipo_prestamo.router)
 
 
 @app.get("/")

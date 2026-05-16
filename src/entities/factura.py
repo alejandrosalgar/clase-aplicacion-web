@@ -6,7 +6,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from src.database.config import Base
-from src.entities.cuenta import Cuenta
 
 
 class Factura(Base):
