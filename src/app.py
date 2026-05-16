@@ -56,16 +56,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-origins = [
-    "http://localhost:4200",
-]
-
+_settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=_settings.cors_origins_list(),
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # Manejadores globales de excepciones (estructura de respuesta unificada)
