@@ -62,5 +62,7 @@ jobs:
         - name: Seed (datos iniciales)
           run: python seed_db.py
 
+          
+
         - name: Pruebas (smoke test)
           run: python -c "from src.app import app; from fastapi.testclient import TestClient; c = TestClient(app); r = c.get('/'); assert r.status_code == 200; b = r.json(); assert b.get('success') is True; assert 'data' in b; print('Smoke test OK')"
