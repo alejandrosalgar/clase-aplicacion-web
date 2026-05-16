@@ -15,9 +15,7 @@ def test_security_headers_are_present(client):
     assert response.status_code == 200
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
-    assert (
-        response.headers["referrer-policy"] == "strict-origin-when-cross-origin"
-    )
+    assert response.headers["referrer-policy"] == "strict-origin-when-cross-origin"
     assert "content-security-policy" in response.headers
     assert "permissions-policy" in response.headers
 
@@ -32,13 +30,8 @@ def test_cors_preflight_allows_localhost_4200(client):
         },
     )
     assert response.status_code in (200, 204)
-    assert (
-        response.headers["access-control-allow-origin"] == "http://localhost:4200"
-    )
-    assert (
-        "authorization"
-        in response.headers["access-control-allow-headers"].lower()
-    )
+    assert response.headers["access-control-allow-origin"] == "http://localhost:4200"
+    assert "authorization" in response.headers["access-control-allow-headers"].lower()
 
 
 def test_protected_endpoint_requires_bearer_token(client):
